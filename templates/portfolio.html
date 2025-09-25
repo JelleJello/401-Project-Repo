@@ -2,49 +2,58 @@
 {% block title %}Portfolio{% endblock %}
 {% block content %}
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card mb-4">
-                <div class="card-header">Portfolio Overview</div>
-                <div class="card-body">
-                    <!-- Summary metrics here -->
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">Holdings</div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Shares</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">NVIDIA</th>
+                                    <td>300</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">AMD</th>
+                                    <td>200</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">INTEL</th>
+                                    <td>400</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="card mb-4">
-                <div class="card-header">Holdings</div>
-                <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Symbol</th>
-                                <th>Company</th>
-                                <th>Shares</th>
-                                <!-- More columns -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Stock data rows -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header">Asset Allocation</div>
-                <div class="card-body">
-                    <!-- Chart for asset allocation -->
-                </div>
-            </div>
-            <div class="card mb-4">
-                <div class="card-header">Watchlist</div>
-                <div class="card-body">
-                    <!-- Watchlist items -->
+            <div class="col-lg-4">
+                <div class="col-xl-4 col-lg-5 mb-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Asset Allocation</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="pt-4 pb-2">
+                                <canvas id="assetdoughnut"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script src="./script.js"></script>
 
 {% endblock %}
