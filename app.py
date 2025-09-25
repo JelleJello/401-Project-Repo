@@ -20,8 +20,17 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(30), unique=True, nullable=False)
 
-    def __repr__(self):
-        return f""
+# class user profile
+# class stocks
+#Stocks
+# Administrator
+# Company
+# Financial_transaction
+# Order_history (Jenelle)
+# Portfolio (Jenelle)
+# Stock_inventory (Jenelle)
+# Stock_market (Jenelle)
+
 
 # Create tables
 with app.app_context():
