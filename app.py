@@ -23,13 +23,13 @@ class User(db.Model):
 # Order History Model
 # class OrderHistory(db.Model):
     # id = db.Column(db.Integer, primary_key=True)
-    # ordername = db.Column(db.String(80), unique=True, nullable=False)
-    # quantity = db.Column(db.String(120), unique=True, nullable=False)
-    # price = db.Column(db.String(30), unique=True, nullable=False)
-    # status
+    # ordername = 
+    # quantity = 
+    # price = 
     # ticker
     # createdAt
     # updatedAt
+    # userid (db.ForeignKey('user.id')
     # StockInventoryid (db.ForeignKey('StockInventory.id'))
     # StockInvenntory (db.ForeignKey('StockInventory'))
     # Administrator (db.ForeignKey('Administrator'))
