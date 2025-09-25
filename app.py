@@ -20,6 +20,32 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(30), unique=True, nullable=False)
 
+# Order History Model
+# class OrderHistory(db.Model):
+    # id = db.Column(db.Integer, primary_key=True)
+    # ordername = db.Column(db.String(80), unique=True, nullable=False)
+    # quantity = db.Column(db.String(120), unique=True, nullable=False)
+    # price = db.Column(db.String(30), unique=True, nullable=False)
+    # status
+    # ticker
+    # createdAt
+    # updatedAt
+    # StockInventoryid (db.ForeignKey('StockInventory.id'))
+    # StockInvenntory (db.ForeignKey('StockInventory'))
+    # Administrator (db.ForeignKey('Administrator'))
+
+# Porfolio Model
+# class Portfolio(db.Model):
+    # id = db.Column(db.Integer, primary_key=True)
+    
+
+# StockInventory Model
+# class StockInventory(db.Model):
+    # id = db.Column(db.Integer, primary_key=True)
+    
+
+
+
 # class user profile (Natalie)
 # class stocks (Natalie)
 # Stocks (Natalie)
@@ -29,7 +55,6 @@ class User(db.Model):
 # Order_history (Jenelle)
 # Portfolio (Jenelle)
 # Stock_inventory (Jenelle)
-# Stock_market (Jenelle)
 
 
 # Create tables
