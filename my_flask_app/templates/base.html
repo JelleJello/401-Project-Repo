@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Site{% endblock %}</title>
+    {{ bootstrap.load_css() }}
+</head>
+
+<body>
+    {{ bootstrap.load_js() }}
+
+    <header class="p-3 bg-dark text-white">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
+                        <use xlink:href="#bootstrap" />
+                    </svg>
+                </a>
+
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('portfolio') }}">Portfolio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('market') }}">Market</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('about') }}">About</a></li>
+                </ul>
+
+                <div class="text-end">
+                    <a class="btn btn-outline-light me-2" href="{{ url_for('login') }}" role="button">Login</a>
+                    <a class="btn btn-warning" href="{{ url_for('signup') }}" role="button">Signup</a>
+                    
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <footer class="fixed-bottom py-3 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <span class="text-muted">&copy; 2025 Stock Trading Breeze. All rights reserved.</span>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item"><a href="#" class="text-muted">Privacy Policy</a></li>
+                        <li class="list-inline-item"><a href="#" class="text-muted">Terms of Use</a></li>
+                        <li class="list-inline-item"><a href="{{ url_for('contact') }}" class="text-muted">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
