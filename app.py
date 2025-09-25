@@ -33,18 +33,19 @@ def home():
     users = User.query.all()
     return render_template("home.html", users=users)
 
-@app.route('/add', methods=['GET', 'POST'])
-def add_user():
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
+        password = request.form['password']
         
-        if not username or not email:
+        if not username or not email or not password:
             flash('Please fill in all fields', 'error')
             return redirect(url_for('signup'))
         
         try:
-            new_user = User(username=username, email=email)
+            new_user = User(username=username, email=email, password=password)
             db.session.add(new_user)
             db.session.commit()
             flash('User added successfully!', 'success')
@@ -53,15 +54,11 @@ def add_user():
             flash(f'Error adding user: {str(e)}', 'error')
             return redirect(url_for('signup'))
     
-    return render_template('portfolio.html')
+    return render_template('signup.html')
 
 @app.route("/login")
 def login():
     return render_template("login.html")
-
-@app.route("/signup")
-def signup():
-    return render_template("signup.html")
 
 @app.route("/portfolio")
 def portfolio():
