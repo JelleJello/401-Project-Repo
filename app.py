@@ -20,12 +20,12 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(30), unique=True, nullable=False)
 
-# class user profile
-# class stocks
-#Stocks
-# Administrator
-# Company
-# Financial_transaction
+# class user profile (Natalie)
+# class stocks (Natalie)
+# Stocks (Natalie)
+# Administrator (Hannah)
+# Company (Hannah)
+# Financial_transaction (Hannah)
 # Order_history (Jenelle)
 # Portfolio (Jenelle)
 # Stock_inventory (Jenelle)
