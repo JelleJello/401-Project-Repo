@@ -20,6 +20,36 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(30), unique=True, nullable=False)
 
+# Admin Model
+class Administrator(db.Model):
+    AdministratorId = db.Column(db.Integer, primary_key=True)
+    Fullname = db.Column(db.String(255))
+    Email = db.Column(db.String(255))
+    password = db.Column(db.String(255))
+
+
+# Company Model
+class Company(db.Model):
+    companyId = db.Column(db.Integer, primary_key=True)
+    Name = db.Column(db.String(255))
+    Description = db.Column(db.String(255))
+    stockTotalQantity = db.Column(db.Integer)
+    ticker = db.Column(db.Integer)
+    currentMarketPrice = db.Column(db.Integer)
+    createdAt = db.Column(Integer)
+    updatedAt = db.Column(Integer)
+
+# Financial Transaction Model
+class Financial_transaction(db.Model):
+    FinancialTransactionId = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Integer)
+    type_BUYSELL = db.Column(db.String(255))
+    createdAt = db.Column(db.Integer)
+    customerAccountNumber = db.Column(db.Integer, ForeignKey)
+    Customer:companyId = db.Column(db.Integer, ForeignKey)
+    Company:orderId = db.Column(db.Integer, ForeignKey)
+    OrderHistory = 
+
 # Order History Model
 # class OrderHistory(db.Model):
     # id = db.Column(db.Integer, primary_key=True)
