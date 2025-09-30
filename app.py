@@ -77,6 +77,13 @@ class Financial_transaction(db.Model):
 
 
 # class user profile (Natalie)
+class User_Profile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.String(255))
+    stocks = db.Column(db.String)
+    portfolio = db.Column(db.String)
+# avatar =
+    
 # class stocks (Natalie)
 # Stocks (Natalie)
 # Administrator (Hannah)
