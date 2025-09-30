@@ -79,9 +79,15 @@ class Financial_transaction(db.Model):
 # class user profile (Natalie)
 class User_Profile(db.Model):
     user_profile_id = db.Column(db.Integer, primary_key=True)
-    user_profile = db.Column(db.String(255))
+    fullName = db.Column(db.String(255))
+    hashedPassword = db.Column(db.String(255))
     stocks = db.Column(db.String)
+    email = db.Column(db.String(255))
+    orderId = db.Column(db.Integer)
     portfolio = db.Column(db.String)
+    availableFunds = db.Column(db.Integer)
+    createdAt = db.Column(db.Integer)
+    updatedAt = db.Column(db.Integer)
 # avatar?
     
 # class stocks (Natalie)
@@ -112,10 +118,10 @@ class Exception(db.Model):
     updatedAt = db.Column(db.Integer)
     AdministratorId = db.Column(db.Integer, ForeignKey)
     Administrator = db.Column(db.String(255), ForeignKey)
-# Stocks (Natalie)
-# Administrator (Hannah)
-# Company (Hannah)
-# Financial_transaction (Hannah)
+# Stocks (Natalie) - not sure about this one? Might be duplicate
+# Administrator (Hannah) - done
+# Company (Hannah) - done
+# Financial_transaction (Hannah) - done
 # Order_history (Jenelle)
 # Portfolio (Jenelle)
 # Stock_inventory (Jenelle)
