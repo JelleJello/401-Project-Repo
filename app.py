@@ -20,6 +20,36 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(30), unique=True, nullable=False)
 
+# Admin Model
+class Administrator(db.Model):
+    AdministratorId = db.Column(db.Integer, primary_key=True)
+    Fullname = db.Column(db.String(255))
+    Email = db.Column(db.String(255))
+    password = db.Column(db.String(255))
+
+
+# Company Model
+class Company(db.Model):
+    companyId = db.Column(db.Integer, primary_key=True)
+    Name = db.Column(db.String(255))
+    Description = db.Column(db.String(255))
+    stockTotalQantity = db.Column(db.Integer)
+    ticker = db.Column(db.Integer)
+    currentMarketPrice = db.Column(db.Integer)
+    createdAt = db.Column(Integer)
+    updatedAt = db.Column(Integer)
+
+# Financial Transaction Model
+class Financial_transaction(db.Model):
+    FinancialTransactionId = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Integer)
+    type_BUYSELL = db.Column(db.String(255))
+    createdAt = db.Column(db.Integer)
+    customerAccountNumber = db.Column(db.Integer, ForeignKey)
+    Customer:companyId = db.Column(db.Integer, ForeignKey)
+    Company:orderId = db.Column(db.Integer, ForeignKey)
+    OrderHistory = 
+
 # Order History Model
 # class OrderHistory(db.Model):
     # id = db.Column(db.Integer, primary_key=True)
@@ -47,11 +77,51 @@ class User(db.Model):
 
 
 # class user profile (Natalie)
+class User_Profile(db.Model):
+    user_profile_id = db.Column(db.Integer, primary_key=True)
+    fullName = db.Column(db.String(255))
+    hashedPassword = db.Column(db.String(255))
+    stocks = db.Column(db.String)
+    email = db.Column(db.String(255))
+    orderId = db.Column(db.Integer)
+    portfolio = db.Column(db.String)
+    availableFunds = db.Column(db.Integer)
+    createdAt = db.Column(db.Integer)
+    updatedAt = db.Column(db.Integer)
+# avatar?
+    
 # class stocks (Natalie)
-# Stocks (Natalie)
-# Administrator (Hannah)
-# Company (Hannah)
-# Financial_transaction (Hannah)
+class Stocks(db.Model):
+    stock_id = db.Column(db.Integer, primary_key=True)
+    stock_name = db.Column(db.String(255))
+    stock_ticker = db.Column(db.Float)
+    company = db.Column(db.String)
+    initial_price = db.Column(db.Float)
+    available_stocks = db.Column(db.Integer)
+# class WorkingDay (Natalie)
+class Working_Day(db.Model):
+    workingDayId = db.Column(db.Integer, primary_key=True)
+    dayOfWeek = db.Column(db.String(255))
+    startTime = db.Column(db.Integer)
+    endTime = db.Column(db.Integer)
+    createdAt = db.Column(db.Integer)
+    updatedAt = db.Column(db.Integer)
+    AdministratorId = db.Column(db.Integer, ForeignKey)
+    Administrator = db.Column(db.String(255), ForeignKey)
+
+# class Exception (Natalie)
+class Exception(db.Model):
+    exceptionId = db.Column(db.Integer, primary_key=True)
+    reason = db.Column(db.String(255))
+    holidayDate = db.Column(db.Integer)
+    createdAt = db.Column(db.Integer)
+    updatedAt = db.Column(db.Integer)
+    AdministratorId = db.Column(db.Integer, ForeignKey)
+    Administrator = db.Column(db.String(255), ForeignKey)
+# Stocks (Natalie) - not sure about this one? Might be duplicate
+# Administrator (Hannah) - done
+# Company (Hannah) - done
+# Financial_transaction (Hannah) - done
 # Order_history (Jenelle)
 # Portfolio (Jenelle)
 # Stock_inventory (Jenelle)
