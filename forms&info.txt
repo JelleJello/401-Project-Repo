@@ -1,0 +1,9 @@
+- need three functions
+    login
+    buy
+    sell
+- need buy & sell functions by thursday 8/2/25
+- buy has minus ticker from company account db
+    example: when a user buys from company NVIDIA there is a "1" taken away from their stocks amount in the db
+- sell has addition ticker to user account db
+    example: when a user sells stocks they will get money added to their "wallet" db
