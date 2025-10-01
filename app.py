@@ -76,9 +76,9 @@ class OrderHistory(db.Model):
     createdAt = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow)
     updatedAt = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow, onupdate=DateTime.utcnow)
     userId = (db.ForeignKey('user.id'))
-    StockInventoryid = (db.ForeignKey('StockInventory.id'))
-    StockInventory = (db.ForeignKey('StockInventory'))
-    Administrator = (db.ForeignKey('Administrator'))
+    StockInvenid = (db.ForeignKey('StockInventory.id'))
+    StockInven = (db.ForeignKey('StockInventory'))
+    Admin = (db.ForeignKey('Administrator'))
 
 # Porfolio Model (Jenelle)
 class Portfolio(db.Model):
@@ -100,7 +100,7 @@ class StockInventory(db.Model):
     createdAt = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow)
     updatedAt = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow, onupdate=DateTime.utcnow)
     companyId = (db.ForeignKey('Company.id'))
-    Administrator = (db.ForeignKey('Administrator'))
+    Admin = (db.ForeignKey('Administrator'))
 
 
 # class user profile (Natalie)
