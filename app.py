@@ -45,9 +45,8 @@ class Financial_transaction(db.Model):
     amount = db.Column(db.Integer)
     type_BUYSELL = db.Column(db.String(255))
     createdAt = db.Column(db.Integer)
-    customerAccountNumber = db.Column(db.Integer, db.ForeignKey('customer.CustomerAccountNumber'))
-    companyId = db.Column(db.Integer, db.ForeignKey('customer.companyId'))
-    orderId = db.Column(db.Integer, db.ForeignKey('company.orderId'))
+    customerAccountNumber = db.Column(db.Integer, db.ForeignKey('user_profile.user_profile_id'))
+    companyId = db.Column(db.Integer, db.ForeignKey('company.companyId'))
 
 # Order History Model
 # class OrderHistory(db.Model):
