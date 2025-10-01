@@ -36,8 +36,8 @@ class Company(db.Model):
     stockTotalQantity = db.Column(db.Integer)
     ticker = db.Column(db.Integer)
     currentMarketPrice = db.Column(db.Integer)
-    createdAt = db.Column(Integer)
-    updatedAt = db.Column(Integer)
+    createdAt = db.Column(db.Integer)
+    updatedAt = db.Column(db.Integer)
 
 # Financial Transaction Model
 class Financial_transaction(db.Model):
@@ -45,10 +45,9 @@ class Financial_transaction(db.Model):
     amount = db.Column(db.Integer)
     type_BUYSELL = db.Column(db.String(255))
     createdAt = db.Column(db.Integer)
-    customerAccountNumber = db.Column(db.Integer, ForeignKey)
-    Customer:companyId = db.Column(db.Integer, ForeignKey)
-    Company:orderId = db.Column(db.Integer, ForeignKey)
-    OrderHistory = 
+    customerAccountNumber = db.Column(db.Integer, db.ForeignKey('customer.CustomerAccountNumber'))
+    companyId = db.Column(db.Integer, db.ForeignKey('customer.companyId'))
+    orderId = db.Column(db.Integer, db.ForeignKey('company.orderId'))
 
 # Order History Model
 # class OrderHistory(db.Model):
