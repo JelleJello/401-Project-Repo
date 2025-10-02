@@ -4,7 +4,7 @@ from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_bcrypt import Bcrypt
 from functools import wraps
-from sqlalchemy import DateTime, Enum, func
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -19,27 +19,34 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# WorkingDay (Natalie)
-# Exception (Natalie)
-# User Profile (Natalie)
-# Administrator (Hannah) - done
-# Company (Hannah) - done
-# Financial_transaction (Hannah) - done
-# Order_history (Jenelle) - done
-# Portfolio (Jenelle) - done
-# Stock_inventory (Jenelle) - done
-
 
 # User Model
 class User(UserMixin, db.Model):
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(30), unique=True, nullable=False)
+    password = db.Column(db.String(255), unique=True, nullable=False)
     role = db.Column(db.String(50), default="user", nullable=False)
+
+# class user profile (Natalie)
+class User_Profile(db.Model):
+    __tablename__ = 'user_profile'
+    user_profile_id = db.Column(db.Integer, primary_key=True)
+    fullName = db.Column(db.String(255))
+    hashedPassword = db.Column(db.String(255))
+    stocks = db.Column(db.String(255))
+    email = db.Column(db.String(255))
+    orderId = db.Column(db.Integer)
+    portfolio = db.Column(db.String(255))
+    availableFunds = db.Column(db.Integer)
+    createdAt = db.Column(db.Integer)
+    updatedAt = db.Column(db.Integer)
+    # avatar?
 
 # Admin Model (Hannah)
 class Administrator(db.Model):
+    __tablename__ = 'administrator'
     AdministratorId = db.Column(db.Integer, primary_key=True)
     Fullname = db.Column(db.String(255))
     Email = db.Column(db.String(255))
@@ -48,6 +55,7 @@ class Administrator(db.Model):
 
 # Company Model (Hannah)
 class Company(db.Model):
+    __tablename__ = 'company'
     companyId = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(255))
     Description = db.Column(db.String(255))
@@ -59,84 +67,74 @@ class Company(db.Model):
 
 # Financial Transaction Model (Hannah)
 class Financial_transaction(db.Model):
+    __tablename__ = 'financial_transaction'
     FinancialTransactionId = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Integer)
     type_BUYSELL = db.Column(db.String(255))
     createdAt = db.Column(db.Integer)
-    customerAccountNumber = db.Column(db.Integer, db.ForeignKey('user_profile.user_profile_id'))
-    companyId = db.Column(db.Integer, db.ForeignKey('company.companyId'))
+    customerAccountNumber = db.Column(db.Integer, db.ForeignKey('user_profile.user_profile_id'), nullable=False)
+    companyId = db.Column(db.Integer, db.ForeignKey('company.companyId'), nullable=False)
+    # reltionship to Financial_transaction(db.Model)
+    # financial_transactions = db.relationship('Financial_Transaction', backref='author', lazy='dynamic')
 
 # Order History Model (Jenelle)
 class OrderHistory(db.Model):
+    __tablename__ = 'orderhistory'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     orderType = db.Column(db.String(4), nullable=False)
     orderQuantity = db.Column(db.Integer, nullable=False)
     totalOrderAmount = db.Column(db.DECIMAL(10, 2), nullable=False)
     orderTicker = db.Column(db.String(10), unique=True, nullable=False)
-    createdAt = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow)
-    updatedAt = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow, onupdate=DateTime.utcnow)
-    userId = (db.ForeignKey('user.id'))
-    StockInvenid = (db.ForeignKey('StockInventory.id'))
-    StockInven = (db.ForeignKey('StockInventory'))
-    Admin = (db.ForeignKey('Administrator'))
+    createdAt = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
+    updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    stockinventory_id = db.Column(db.Integer, db.ForeignKey('stockinventory.id'), nullable=False)
+    administrator_id = db.Column(db.ForeignKey('administrator.AdministratorId'), nullable=False)
 
 # Porfolio Model (Jenelle)
 class Portfolio(db.Model):
+    __tablename__ = 'portfolio'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     walletAmount = db.Column(db.Integer, nullable=False, default=0)
-    createdAt = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow)
-    updatedAt = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow, onupdate=DateTime.utcnow)
-    portfolioUserId = (db.ForeignKey('user.id'))
-    userOrderHistory = (db.ForeignKey('OrderHistory'))
+    createdAt = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
+    updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    portfolio_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_order_history = db.Column(db.ForeignKey('orderhistory.id'), nullable=False)
 
 # StockInventory Model (Jenelle)
 class StockInventory(db.Model):
+    __tablename__ = 'stockinventory'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     stockName = db.Column(db.String(255), unique=True, nullable=False)
     stockTicker = db.Column(db.String(10), unique=True, nullable=False)
     stockQuantity = db.Column(db.Integer, nullable=False)
     initialMarketPrice = db.Column(db.DECIMAL(10, 2), nullable=False)
     currentMarketPrice = db.Column(db.DECIMAL(10, 2), nullable=False)
-    createdAt = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow)
-    updatedAt = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow, onupdate=DateTime.utcnow)
-    companyId = (db.ForeignKey('Company.id'))
-    Admin = (db.ForeignKey('Administrator'))
-
-
-# class user profile (Natalie)
-class User_Profile(db.Model):
-    user_profile_id = db.Column(db.Integer, primary_key=True)
-    fullName = db.Column(db.String(255))
-    hashedPassword = db.Column(db.String(255))
-    stocks = db.Column(db.String)
-    email = db.Column(db.String(255))
-    orderId = db.Column(db.Integer)
-    portfolio = db.Column(db.String)
-    availableFunds = db.Column(db.Integer)
-    createdAt = db.Column(db.Integer)
-    updatedAt = db.Column(db.Integer)
-# avatar?
+    createdAt = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
+    updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('company.companyId'), nullable=False)
+    administrator_id = db.Column(db.ForeignKey('administrator.AdministratorId'), nullable=False)
 
 # class WorkingDay (Natalie)
 class Working_Day(db.Model):
+    __tablename__ = 'working_day'
     workingDayId = db.Column(db.Integer, primary_key=True)
     dayOfWeek = db.Column(db.String(255))
     startTime = db.Column(db.Integer)
     endTime = db.Column(db.Integer)
     createdAt = db.Column(db.Integer)
     updatedAt = db.Column(db.Integer)
-    AdministratorId = db.Column(db.Integer, db.ForeignKey)
-    Administrator = db.Column(db.String(255), db.ForeignKey)
+    AdministratorId = db.Column(db.Integer, db.ForeignKey('administrator.AdministratorId'))
 
 # class Exception (Natalie)
 class Exception(db.Model):
+    __tablename__ = 'exception'
     exceptionId = db.Column(db.Integer, primary_key=True)
     reason = db.Column(db.String(255))
     holidayDate = db.Column(db.Integer)
     createdAt = db.Column(db.Integer)
     updatedAt = db.Column(db.Integer)
-    AdministratorId = db.Column(db.Integer, db.ForeignKey)
-    Administrator = db.Column(db.String(255), db.ForeignKey)
+    AdministratorId = db.Column(db.Integer, db.ForeignKey('administrator.AdministratorId'))
 
 # Create tables
 with app.app_context():
@@ -164,6 +162,7 @@ def signup():
         hashed_password = bcrypt.generate_password_hash(request.form.get("password")).decode('utf-8')
         user = User(
             username=request.form.get("username"),
+            email=request.form.get("email"),
             password=hashed_password,  # Store hashed password instead of plaintext
             role="user"
         )
