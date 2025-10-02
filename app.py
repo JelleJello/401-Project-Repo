@@ -26,7 +26,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(50), default="user", nullable=False)
 
 # class user profile (Natalie)
@@ -50,7 +50,7 @@ class Administrator(db.Model):
     AdministratorId = db.Column(db.Integer, primary_key=True)
     Fullname = db.Column(db.String(255))
     Email = db.Column(db.String(255))
-    password = db.Column(db.String(255))
+    password = db.Column(db.Text(255))
 
 
 # Company Model (Hannah)
@@ -177,11 +177,10 @@ def login():
         user = User.query.filter_by(username=request.form.get("username")).first()
         if user and bcrypt.check_password_hash(user.password, request.form.get("password")):
             login_user(user)
-            return redirect(url_for("home"))
+            return redirect(url_for("portfolio"))
     return render_template("login.html")
 
 @app.route("/")
-@login_required
 def home():
     return render_template("home.html")
 
@@ -228,10 +227,12 @@ def admin_dashboard():
     return render_template("admin_dashboard.html", users=users)
 
 @app.route("/portfolio")
+@login_required
 def portfolio():
     return render_template("portfolio.html")
 
 @app.route("/market")
+@login_required
 def market():
     return render_template("market.html")
 

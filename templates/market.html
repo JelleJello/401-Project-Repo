@@ -2,6 +2,167 @@
 {% block title %}Market{% endblock %}
 {% block content %}
 
+<head>
+    <title>Stock Market Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS (for styling charts, etc.) -->
+    <style>
+        .card-header {
+            font-weight: bold;
+        }
+
+        .stock-ticker span {
+            margin-left: 15px;
+        }
+
+        .price-change-positive {
+            color: #28a745;
+        }
+
+        .price-change-negative {
+            color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid p-4">
+        <!-- Content will go here -->
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js (optional, for charts) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</body>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="bg-light p-2 rounded overflow-hidden">
+            <marquee class="stock-ticker">
+                <span class="text-secondary">S&P 500: <span class="price-change-positive">5200.12 (+0.5%)</span></span>
+                <span class="text-secondary">NASDAQ: <span class="price-change-positive">16500.87 (+1.2%)</span></span>
+                <span class="text-secondary">DOW: <span class="price-change-negative">39000.45 (-0.3%)</span></span>
+                <span class="text-secondary">TSLA: <span class="price-change-positive">255.67 (+2.1%)</span></span>
+            </marquee>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <!-- Left Column: Search and Watchlist -->
+    <div class="col-md-4">
+        <!-- Search bar -->
+        <div class="card mb-4">
+            <div class="card-header">Search Stocks</div>
+            <div class="card-body">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Enter stock symbol (e.g., AAPL)">
+                    <button class="btn btn-primary" type="button">Search</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Watchlist -->
+        <div class="card mb-4">
+            <div class="card-header">My Watchlist</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">NVIDIA Corp (NVDA)</h6><small>NASDAQ</small>
+                    </div>
+                    <div><span class="price-change-positive">+0.66 (0.35%)</span></div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">Advanced Micro Devices Inc (AMD)</h6><small>NASDAQ</small>
+                    </div>
+                    <div><span class="price-change-positive">+2.22 (1.37%)</span></div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">Intel Corp (INTC)</h6><small>NASDAQ</small>
+                    </div>
+                    <div><span class="price-change-positive">+2.39 (7.12%)</span></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Right Column: Market Overview -->
+    <div class="col-md-8">
+        <!-- Market Performance -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">Market Indices</div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>DOW 30</span> <span class="price-change-positive">46,441.10 (0.093%)</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>S&P 500</span> <span class="price-change-positive">6,711.20 (0.34%)</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>DAX 40</span> <span class="price-change-positive">24,433.71 (+1.33%)</span>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">Market Movers</div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>TSLA</span> <span class="price-change-positive">255.67 (+2.1%)</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>GOOG</span> <span class="price-change-positive">135.90 (+1.8%)</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>AMZN</span> <span class="price-change-negative">180.32 (-1.1%)</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts (Placeholder using Chart.js) -->
+        <div class="card mb-4">
+            <div class="card-header">DOW 30 Performance</div>
+            <div class="card-body">
+                <canvas id="dow30Chart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Hard coded data for DOW 30 chart
+    const dow30Data = {
+        labels: ['Oct 1', 'Oct 2', 'Oct 3', 'Oct 4', 'Oct 5', 'Oct 6'],
+        datasets: [{
+            label: 'DOW 30 Index',
+            data: [46394.05, 45851.13, 46474, 46178.01, 45999, 46080.17],
+            borderColor: 'rgba(76, 56, 202, 0.8)',
+            backgroundColor: 'rgba(100, 95, 202, 0.8)',
+            fill: true,
+            tension: 0.1
+        }]
+    };
+
+    const config = {
+        type: 'line',
+        data: dow30Data,
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: false } }
+        }
+    };
+
+    new Chart(
+        document.getElementById('dow30Chart'),
+        config
+    );
+</script>
 
 
 {% endblock %}
