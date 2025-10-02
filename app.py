@@ -247,6 +247,13 @@ def about():
 def contact():
     return render_template("contact.html")
 
+@app.route("/buy")
+def buy_function():
+    return render_template("buy_function.html")
+
+@app.route("/sell")
+def sell_function():
+    return render_template("sell_function.html")
 
 
 if __name__ == "__main__":
