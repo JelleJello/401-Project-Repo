@@ -11,7 +11,7 @@ app = Flask(__name__)
 bootstrap = Bootstrap5(app)
 
 # Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/flask_users_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/stocks_application'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your-secret-key'
 
@@ -177,7 +177,10 @@ def login():
         user = User.query.filter_by(username=request.form.get("username")).first()
         if user and bcrypt.check_password_hash(user.password, request.form.get("password")):
             login_user(user)
+            flash('Logged in successfully!', 'success')
             return redirect(url_for("portfolio"))
+        else:
+            flash('Invalid username or password', 'error')
     return render_template("login.html")
 
 @app.route("/")
@@ -227,12 +230,12 @@ def admin_dashboard():
     return render_template("admin_dashboard.html", users=users)
 
 @app.route("/portfolio")
-@login_required
+# @login_required
 def portfolio():
     return render_template("portfolio.html")
 
 @app.route("/market")
-@login_required
+# @login_required
 def market():
     return render_template("market.html")
 
