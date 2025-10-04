@@ -177,7 +177,6 @@ def login():
         user = User.query.filter_by(username=request.form.get("username")).first()
         if user and bcrypt.check_password_hash(user.password, request.form.get("password")):
             login_user(user)
-            flash('Logged in successfully!', 'success')
             return redirect(url_for("portfolio"))
         else:
             flash('Invalid username or password', 'error')
