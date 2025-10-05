@@ -7,3 +7,11 @@
     example: when a user buys from company NVIDIA there is a "1" taken away from their stocks amount in the db
 - sell has addition ticker to user account db
     example: when a user sells stocks they will get money added to their "wallet" db
+
+okay so 
+tasks:
+- 10/5/2025
+    - Jenelle will add buy function to market page so that user can look for stocks then buy the stocks they want. Will also add a wallet to portfolio so user can see how much munion they got after buy or sell. 
+    - Natalie will do sell function that will be within portfolio so user goes to portfolio to sell stocks
+    - Hannah will do that WRETCHED login
+    - need a history function added to user portfolio so user can see what buy and sell they have done within the last month

@@ -198,7 +198,7 @@ def admin_register():
     if request.method == "POST":
         # Verify the admin registration key
         admin_key = request.form.get("admin_key")
-        if admin_key != "YOUR_SECRET_ADMIN_KEY":  # Change this to a secure key
+        if admin_key != "iamadmin":
             return redirect(url_for("login"))
        
         hashed_password = bcrypt.generate_password_hash(request.form.get("password")).decode('utf-8')
@@ -230,12 +230,12 @@ def admin_dashboard():
     return render_template("admin_dashboard.html", users=users)
 
 @app.route("/portfolio")
-# @login_required
+@login_required
 def portfolio():
     return render_template("portfolio.html")
 
 @app.route("/market")
-# @login_required
+@login_required
 def market():
     return render_template("market.html")
 
@@ -247,7 +247,15 @@ def about():
 def contact():
     return render_template("contact.html")
 
+@app.route("/buy")
+@login_required
+def buy_function():
+    return render_template("buy_function.html")
 
+@app.route("/sell")
+@login_required
+def sell_function():
+    return render_template("sell_function.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
