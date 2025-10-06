@@ -25,16 +25,17 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('portfolio') }}">Portfolio</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('market') }}">Market</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('about') }}">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('buy') }}">Buy Stocks</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('sell') }}">Sell Stocks</a></li>
                 </ul>
             </div>
         </div>
     </header>
 
     {% block content %}{% endblock %}
+</body>
 
-    <footer class="fixed-bottom py-3 bg-light">
+</html>
+
+    <footer class="fixed-bottom py-1 bg-light">
         <div class="container">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start">
@@ -50,7 +51,3 @@
             </div>
         </div>
     </footer>
-
-</body>
-
-</html>

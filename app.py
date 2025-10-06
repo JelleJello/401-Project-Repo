@@ -80,25 +80,22 @@ class Financial_transaction(db.Model):
 # Order History Model (Jenelle)
 class OrderHistory(db.Model):
     __tablename__ = 'orderhistory'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    orderType = db.Column(db.String(4), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    orderType = db.Column(db.String(10), nullable=False)
     orderQuantity = db.Column(db.Integer, nullable=False)
-    totalOrderAmount = db.Column(db.DECIMAL(10, 2), nullable=False)
-    orderTicker = db.Column(db.String(10), unique=True, nullable=False)
-    createdAt = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
-    updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    stockinventory_id = db.Column(db.Integer, db.ForeignKey('stockinventory.id'), nullable=False)
-    administrator_id = db.Column(db.ForeignKey('administrator.AdministratorId'), nullable=False)
+    totalOrderAmount = db.Column(db.Float, nullable=False)
+    ticker = db.Column(db.String(10), unique=True, nullable=False)
+    createdAt = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 # Porfolio Model (Jenelle)
 class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    walletAmount = db.Column(db.Integer, nullable=False, default=0)
+    walletAmount = db.Column(db.Integer, nullable=False, default=10000)
     createdAt = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
     updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    portfolio_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    portfolio_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user_order_history = db.Column(db.ForeignKey('orderhistory.id'), nullable=False)
 
 # StockInventory Model (Jenelle)
@@ -106,14 +103,13 @@ class StockInventory(db.Model):
     __tablename__ = 'stockinventory'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     stockName = db.Column(db.String(255), unique=True, nullable=False)
-    stockTicker = db.Column(db.String(10), unique=True, nullable=False)
-    stockQuantity = db.Column(db.Integer, nullable=False)
-    initialMarketPrice = db.Column(db.DECIMAL(10, 2), nullable=False)
+    ticker = db.Column(db.String(10), unique=True, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
     currentMarketPrice = db.Column(db.DECIMAL(10, 2), nullable=False)
     createdAt = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
     updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.companyId'), nullable=False)
-    administrator_id = db.Column(db.ForeignKey('administrator.AdministratorId'), nullable=False)
+    # company_id = db.Column(db.Integer, db.ForeignKey('company.companyId'), nullable=False)
+    # administrator_id = db.Column(db.ForeignKey('administrator.AdministratorId'), nullable=False)
 
 # class WorkingDay (Natalie)
 class Working_Day(db.Model):
@@ -246,18 +242,86 @@ def about():
 def contact():
     return render_template("contact.html")
 
-@app.route("/buy")
-def buy_function():
-    return render_template("buy_function.html")
+# @app.route("/createstocks", methods=['GET', 'POST'])
+# def add_stocks():
+#     if request.method == 'POST':
+#             name = request.form['name']
+#             quantity = int(request.form['quantity'])
+#             price = float(request.form['price'])
+#             new_item = StockInventory(name=name, quantity=quantity, price=price)
+#             db.session.add(new_item)
+#             db.session.commit()
+#             return redirect(url_for('index'))
+#     return render_template('admin_dashboard.html')
 
-@app.route("/sell")
-def sell_function():
-    return render_template("sell_function.html")
+# @app.route('/editstocks/<int:item_id>', methods=['GET', 'POST'])
+# def edit_item(StockInventory_id):
+#     stock = StockInventory.query.get_or_404(StockInventory_id)
+#     if request.method == 'POST':
+#         stock.name = request.form['name']
+#         stock.quantity = int(request.form['quantity'])
+#         stock.price = float(request.form['price'])
+#         db.session.commit()
+#         return redirect(url_for('index'))
+#     return render_template('edit_item.html', stock=stock)
 
-@app.route("/sell")
+# @app.route('/deletestocks/<int:item_id>', methods=['POST'])
+# def delete_item(StockInventory_id):
+#     item = StockInventory.query.get_or_404(StockInventory_id)
+#     db.session.delete(item)
+#     db.session.commit()
+#     return redirect(url_for('index'))
+
+@app.route('/purchasingstocks', methods=["GET", "POST"])
+def purchasingstocks():
+    return render_template('purchasingstocks.html')
+
+@app.route('/stockorder', methods=['POST'])
+def stockorder():
+    stock_symbol = request.form.get('symbol')
+    amount_stock = request.form.get('quantity')
+
+    # Validate inputs
+    if not stock_symbol or not amount_stock:
+        flash("Order couldn't go through: Missing information.")
+        return redirect(url_for('purchasingstocks'))
+
+    try:
+        amount = int(amount_stock)
+        if amount <= 0:
+            raise ValueError
+    except ValueError:
+        flash("Order couldn't go through: Invalid amount.")
+        return redirect(url_for('market'))
+
+    # Here, you'd typically get the stock price from an API
+    # For this example, let's assume a dummy stock price
+    stock_price = 100.0  # Placeholder price
+    total_cost = stock_price * amount
+
+    new_order = OrderHistory(
+        order_type='buy',
+        quantity=amount,
+        total_amount=total_cost,
+        ticker=stock_symbol,
+        date=datetime.utcnow()
+    )
+
+    try:
+        db.session.add(new_order)
+        db.session.commit()
+        flash(f"Successfully bought {amount} shares of {stock_symbol}.")
+        return redirect(url_for('portfolio'))
+    except:
+        db.session.rollback()
+        flash("Order couldn't go through.")
+        return redirect(url_for('market'))
+    
+
+@app.route("/sellingstocks")
 @login_required
-def sell_function():
-    return render_template("sell_function.html")
+def sell_page():
+    return render_template("sellingstocks.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

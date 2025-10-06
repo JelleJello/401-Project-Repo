@@ -52,12 +52,9 @@
     <div class="col-md-4">
         <!-- Search bar -->
         <div class="card mb-4">
-            <div class="card-header">Search Stocks</div>
+            <div class="card-header">Add to My Portfolio</div>
             <div class="card-body">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Enter stock symbol (e.g., AAPL)">
-                    <button class="btn btn-primary" type="button">Search</button>
-                </div>
+                <a href="{{ url_for('purchasingstocks') }}" class="btn btn-primary btn-lg">Buy Stocks</a>
             </div>
         </div>
 
@@ -104,7 +101,7 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <span>DAX 40</span> <span class="price-change-positive">24,433.71 (+1.33%)</span>
                         </li>
-                        
+
                     </ul>
                 </div>
             </div>
