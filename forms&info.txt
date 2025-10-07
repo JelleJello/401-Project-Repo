@@ -1,5 +1,6 @@
 tasks:
 -10/9/25
+<<<<<<< Updated upstream
     - Natalie will do the market hours Admin function
         -link db order history for buy/sell function
     - Hannah
@@ -10,11 +11,20 @@ tasks:
         -market schedule in admin
 
 
+=======
+    - Natalie will do the market hours Admin function & polish sell function
+    - Hannah will the the create stocks Admin function & do Admin login
+    - Jenelle will the the market schedule Admin function & polish buy function
+>>>>>>> Stashed changes
 "how to code a stocks buying function in flask python that queries a table called 'stocksinventory' in a local databse called 'stocks_application' for a stock symbol that the user can input into a form. The form will then send the order type (Buy or Sell), the order quantity (number of shares), total order amount (the amount in dollars that the shares add up to), ticker, and the date that the order was created to a table called 'orderhistory'. The total order amount will also be subtracted from the 'walletAmount' attribute in the table 'portfolio' from the local database 'stocks_application'"
 
 "code a html form for a stocks buying function in flask python that queries a table called 'stocksinventory' in a local databse called 'stocks_application' for a stock symbol that the user can input into a form. The form will then send the order type (Buy or Sell), the order quantity (number of shares), total order amount (the amount in dollars that the shares add up to), ticker, and the date that the order was created to a table called 'orderhistory'. The total order amount will also be subtracted from the 'walletAmount' attribute in the table 'portfolio' from the local database 'stocks_application'"
 
+<<<<<<< Updated upstream
 allows the user to input what company they want to buy stocks from and the amount of shares that they want to buy and send that input form to a local database 
 
 for prices: float math.random(,) 
     numbers min and max can be any number, min probably shouldn't be 0 tho
+=======
+allows the user to input what company they want to buy stocks from and the amount of shares that they want to buy and send that input form to a local database 
+>>>>>>> Stashed changes
