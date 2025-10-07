@@ -216,6 +216,47 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# More flexible role-based decorator
+def role_required(*roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated or current_user.role not in roles:
+                return redirect(url_for("home"))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+# Example route allowing multiple roles
+@app.route('/manage-content')
+@login_required
+@role_required('admin', 'editor')
+def manage_content():
+    return render_template("manage_content.html")
+# User management routes for Admins
+@app.route('/delete-user/', methods=["POST"])
+@login_required
+@admin_required
+def delete_user(user_id):
+    user = Users.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/change-role/', methods=["POST"])
+@login_required
+@admin_required
+def change_role(user_id):
+    user = Users.query.get_or_404(user_id)
+    new_role = request.form.get("role")
+    
+    # Validate the role
+    if new_role in ["user", "admin", "editor"]:
+        user.role = new_role
+        db.session.commit()
+    
+    return redirect(url_for('admin_dashboard'))
+
 # Admin only role
 @app.route('/admin-dashboard')
 @login_required
