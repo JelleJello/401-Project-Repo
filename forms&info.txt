@@ -16,3 +16,9 @@ tasks:
     - Natalie will do sell function that will be within portfolio so user goes to portfolio to sell stocks
     - Hannah will do that WRETCHED login
     - need a history function added to user portfolio so user can see what buy and sell they have done within the last month
+
+tasks:
+-10/9/25
+    - Natalie will do the market hours Admin function
+    - Hannah will the the create stocks Admin function
+    - Jenelle will the the market schedule Admin function
