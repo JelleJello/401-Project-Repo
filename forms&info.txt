@@ -1,29 +1,20 @@
-- (taken from discord dms) tasks: (10/5/2025)
-- Jenelle will add buy function to market page so that user can look for stocks then buy the stocks they want. Will also add a wallet to portfolio so user can see how much munion they got after buy or sell. 
-- Natalie will do sell function that will be within portfolio so user goes to portfolio to sell stocks
-- Hannah will do that WRETCHED login
-- need a history function added to user portfolio so user can see what buy and sell they have done within the last month
-
-- buy has minus ticker from company account db
-    example: when a user buys from company NVIDIA there is a "1" taken away from their stocks amount in the db
-- sell has addition ticker to user account db
-    example: when a user sells stocks they will get money added to their "wallet" db
-
-okay so 
-tasks:
-- 10/5/2025
-    - Jenelle will add buy function to market page so that user can look for stocks then buy the stocks they want. Will also add a wallet to portfolio so user can see how much munion they got after buy or sell. 
-    - Natalie will do sell function that will be within portfolio so user goes to portfolio to sell stocks
-    - Hannah will do that WRETCHED login
-    - need a history function added to user portfolio so user can see what buy and sell they have done within the last month
-
 tasks:
 -10/9/25
     - Natalie will do the market hours Admin function
-    - Hannah will the the create stocks Admin function
-    - Jenelle will the the market schedule Admin function
+        -link db order history for buy/sell function
+    - Hannah
+        -admin login
+        -create stocks
+        -link database for stonks
+    - Jenelle
+        -market schedule in admin
+
+
 "how to code a stocks buying function in flask python that queries a table called 'stocksinventory' in a local databse called 'stocks_application' for a stock symbol that the user can input into a form. The form will then send the order type (Buy or Sell), the order quantity (number of shares), total order amount (the amount in dollars that the shares add up to), ticker, and the date that the order was created to a table called 'orderhistory'. The total order amount will also be subtracted from the 'walletAmount' attribute in the table 'portfolio' from the local database 'stocks_application'"
 
 "code a html form for a stocks buying function in flask python that queries a table called 'stocksinventory' in a local databse called 'stocks_application' for a stock symbol that the user can input into a form. The form will then send the order type (Buy or Sell), the order quantity (number of shares), total order amount (the amount in dollars that the shares add up to), ticker, and the date that the order was created to a table called 'orderhistory'. The total order amount will also be subtracted from the 'walletAmount' attribute in the table 'portfolio' from the local database 'stocks_application'"
 
 allows the user to input what company they want to buy stocks from and the amount of shares that they want to buy and send that input form to a local database 
+
+for prices: float math.random(,) 
+    numbers min and max can be any number, min probably shouldn't be 0 tho
