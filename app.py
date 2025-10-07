@@ -5,6 +5,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask_bcrypt import Bcrypt
 from functools import wraps
 from datetime import datetime
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -363,6 +364,29 @@ def stockorder():
 @login_required
 def sell_page():
     return render_template("sellingstocks.html")
+    
+MARKET_HOURS = {
+    "NYSE": {
+        "open": datetime.time(9, 30),
+        "close": datetime.time(16, 00),
+        "timezone": "America/New_York",
+    }
+}
 
+@admin_required
+def change_stock_market_hours(current_user, exchange: str, open_time: datetime.time, close_time: datetime.time):
+    """
+    Changes the opening and closing hours for a specified stock exchange.
+    This function can only be called by an admin, enforced by the decorator.
+    """
+    if exchange in MARKET_HOURS:
+        print(f"⚙️ Changing hours for {exchange} from {MARKET_HOURS[exchange]['open']} to {open_time}...")
+        MARKET_HOURS[exchange]["open"] = open_time
+        MARKET_HOURS[exchange]["close"] = close_time
+        print(f" Successfully updated {exchange} hours to Open: {open_time}, Close: {close_time}")
+        return MARKET_HOURS[exchange]
+    else:
+        print(f" Exchange {exchange} not found.")
+        return None
 if __name__ == "__main__":
     app.run(debug=True)
