@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_bcrypt import Bcrypt
 from functools import wraps
-from datetime import datetime
-import pandas as pd
+from datetime import datetime, date
+import holidays
+
+from sqlalchemy import func
+# import pandas as pd
 
 app = Flask(__name__)
 
@@ -86,7 +89,7 @@ class OrderHistory(db.Model):
     orderQuantity = db.Column(db.Integer, nullable=False)
     totalOrderAmount = db.Column(db.Float, nullable=False)
     ticker = db.Column(db.String(10), unique=True, nullable=False)
-    createdAt = db.Column(db.DateTime, default=datetime.utcnow)
+    createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 # Porfolio Model (Jenelle)
@@ -94,7 +97,7 @@ class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     walletAmount = db.Column(db.Integer, nullable=False, default=10000)
-    createdAt = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
+    createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
     updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     portfolio_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user_order_history = db.Column(db.ForeignKey('orderhistory.id'), nullable=False)
@@ -107,7 +110,7 @@ class StockInventory(db.Model):
     ticker = db.Column(db.String(10), unique=True, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     currentMarketPrice = db.Column(db.DECIMAL(10, 2), nullable=False)
-    createdAt = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
+    createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
     updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     # company_id = db.Column(db.Integer, db.ForeignKey('company.companyId'), nullable=False)
     # administrator_id = db.Column(db.ForeignKey('administrator.AdministratorId'), nullable=False)
@@ -136,6 +139,17 @@ class Exception(db.Model):
 # Create tables
 with app.app_context():
     db.create_all()
+    # Add some sample data if needed
+    if not StockInventory.query.first():
+        stock1 = StockInventory(stockName='NVIDIA Corp', ticker='NVDA', quantity='500', currentMarketPrice='189.11')
+        stock2 = StockInventory(stockName='Intel Corp', ticker='INTC', quantity='500', currentMarketPrice='37.43')
+        stock3 = StockInventory(stockName='Advanced Micro Devices Inc', ticker='AMD', quantity='500', currentMarketPrice='235.56')
+        stock4 = StockInventory(stockName='Amazon.com Inc', ticker='AMZN', quantity='500', currentMarketPrice='225.22')
+        db.session.add(stock1)
+        db.session.add(stock2)
+        db.session.add(stock3)
+        db.session.add(stock4)
+        db.session.commit()
 
 # User or Admin authentication check
 def admin_required(f):
@@ -239,7 +253,7 @@ def manage_content():
 @login_required
 @admin_required
 def delete_user(user_id):
-    user = Users.query.get_or_404(user_id)
+    user = User.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
@@ -248,7 +262,7 @@ def delete_user(user_id):
 @login_required
 @admin_required
 def change_role(user_id):
-    user = Users.query.get_or_404(user_id)
+    user = User.query.get_or_404(user_id)
     new_role = request.form.get("role")
     
     # Validate the role
@@ -346,7 +360,7 @@ def stockorder():
         quantity=amount,
         total_amount=total_cost,
         ticker=stock_symbol,
-        date=datetime.utcnow()
+        date=db.DateTime(timezone=True),server_default=func.now()
     )
 
     try:
@@ -388,5 +402,40 @@ def change_stock_market_hours(current_user, exchange: str, open_time: datetime.t
     else:
         print(f" Exchange {exchange} not found.")
         return None
+    
+@admin_required
+def open_season():
+    today = date.today()
+    
+    # 1. Check for weekends (Saturday or Sunday)
+    # The weekday() method returns Monday as 0 and Sunday as 6.
+    if today.weekday() >= 5:  # 5 is Saturday, 6 is Sunday
+        return False
+
+    # 2. Check for U.S. federal holidays
+    # Create an instance of the holidays library for the U.S.
+    # It will automatically generate a list of holidays for the current year.
+    us_holidays = holidays.country_holidays('US')
+    if today in us_holidays:
+        return False
+
+    # If it's not a weekend and not a holiday, the market is open
+    return True
+
+@app.route('/market-status', methods=['GET'])
+def market_status():
+    if open_season():
+        return jsonify({
+            "status": "Open",
+            "message": "The market is currently open for business."
+        })
+    else:
+        return jsonify({
+            "status": "Closed",
+            "message": "The market is currently closed. Please check back during standard business hours."
+        })
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -22,3 +22,19 @@ allows the user to input what company they want to buy stocks from and the amoun
 for prices: float math.random(,) 
     numbers min and max can be any number, min probably shouldn't be 0 tho
 allows the user to input what company they want to buy stocks from and the amount of shares that they want to buy and send that input form to a local database 
+
+
+
+@app.route('/buy/<int:stocks_id>', methods=['GET', 'POST'])
+def buy_stocks(stocks_id):
+    form = purchasingstocks()
+    if form.validate_on_submit():
+        quantity = form.quantity.data
+        # In a real application, you would:
+        # 1. Retrieve item details from a database using item_id.
+        stocks = StockInventory.query.get_or_404(stocks_id)
+        # 2. Check stock availability.
+        # 3. Process the purchase (e.g., update inventory, create an order).
+        flash(f'Successfully purchased {quantity} of item {stocks_id}!')
+        return render_template('portfolio.html', stocks_id=stocks_id, quantity=quantity)
+    return render_template('purchasingstocks.html', form=form, stocks_id=stocks_id)
