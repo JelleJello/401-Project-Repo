@@ -33,6 +33,9 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(50), default="user", nullable=False)
 
+    def get_id(self):
+        return f"user-{self.id}"
+
 # class user profile (Natalie)
 class User_Profile(db.Model):
     __tablename__ = 'user_profile'
@@ -57,8 +60,9 @@ class Administrator(UserMixin, db.Model):
     password = db.Column(db.Text(255), nullable=False)
 
     def get_id(self):
-        return str(self.AdministratorId)
+        return f"admin-{self.AdministratorId}"
 
+    @property
     def role(self):
         return "admin"
 
@@ -169,7 +173,10 @@ def admin_required(f):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id)) or Administrator.query.get(user_id)
+    if user_id.startswith("user-"):
+        return User.query.get(int(user_id.replace("user-", "")))
+    elif user_id.startswith("admin-"):
+        return Administrator.query.get(int(user_id.replace("admin-", "")))
 
 bcrypt = Bcrypt(app)
 
