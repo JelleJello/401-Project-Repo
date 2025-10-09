@@ -5,7 +5,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask_bcrypt import Bcrypt
 from functools import wraps
 from datetime import datetime, date
-import holidays
+# import holidays
 
 from sqlalchemy import func
 # import pandas as pd
@@ -52,9 +52,9 @@ class User_Profile(db.Model):
 class Administrator(db.Model):
     __tablename__ = 'administrator'
     AdministratorId = db.Column(db.Integer, primary_key=True)
-    Fullname = db.Column(db.String(255))
-    Email = db.Column(db.String(255))
-    password = db.Column(db.Text(255))
+    Fullname = db.Column(db.String(255), nullable=False)
+    Email = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.Text(255), nullable=False)
 
 
 # Company Model (Hannah)
@@ -137,19 +137,19 @@ class Exception(db.Model):
     AdministratorId = db.Column(db.Integer, db.ForeignKey('administrator.AdministratorId'))
 
 # Create tables
-with app.app_context():
-    db.create_all()
+# with app.app_context():
+    # db.create_all()
     # Add some sample data if needed
-    if not StockInventory.query.first():
-        stock1 = StockInventory(stockName='NVIDIA Corp', ticker='NVDA', quantity='500', currentMarketPrice='189.11')
-        stock2 = StockInventory(stockName='Intel Corp', ticker='INTC', quantity='500', currentMarketPrice='37.43')
-        stock3 = StockInventory(stockName='Advanced Micro Devices Inc', ticker='AMD', quantity='500', currentMarketPrice='235.56')
-        stock4 = StockInventory(stockName='Amazon.com Inc', ticker='AMZN', quantity='500', currentMarketPrice='225.22')
-        db.session.add(stock1)
-        db.session.add(stock2)
-        db.session.add(stock3)
-        db.session.add(stock4)
-        db.session.commit()
+    # if not StockInventory.query.first():
+        # stock1 = StockInventory(stockName='NVIDIA Corp', ticker='NVDA', quantity='500', currentMarketPrice='189.11')
+        # stock2 = StockInventory(stockName='Intel Corp', ticker='INTC', quantity='500', currentMarketPrice='37.43')
+        # stock3 = StockInventory(stockName='Advanced Micro Devices Inc', ticker='AMD', quantity='500', currentMarketPrice='235.56')
+        # stock4 = StockInventory(stockName='Amazon.com Inc', ticker='AMZN', quantity='500', currentMarketPrice='225.22')
+        # db.session.add(stock1)
+        # db.session.add(stock2)
+        # db.session.add(stock3)
+        # db.session.add(stock4)
+        # db.session.commit()
 
 # User or Admin authentication check
 def admin_required(f):
@@ -203,23 +203,24 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
+# ADMIN SIGNUP & LOGIN
 @app.route('/admin-register', methods=["GET", "POST"])
 def admin_register():
     if request.method == "POST":
         # Verify the admin registration key
         admin_key = request.form.get("admin_key")
         if admin_key != "iamadmin":
-            return redirect(url_for("login"))
+            return redirect(url_for("admin_login"))
        
         hashed_password = bcrypt.generate_password_hash(request.form.get("password")).decode('utf-8')
-        admin = User(
-            username=request.form.get("username"),
-            password=hashed_password,
-            role="admin"
+        admin = Administrator(
+            Fullname=request.form.get("Fullname"),
+            Email=request.form.get("Email"),
+            password=hashed_password
         )
         db.session.add(admin)
         db.session.commit()
-        return redirect(url_for("login"))
+        return redirect(url_for("admin_login"))
    
     return render_template("admin_sign_up.html")
 
@@ -278,7 +279,16 @@ def change_role(user_id):
 @admin_required
 def admin_dashboard():
     users = User.query.all()  # Get all users for admin to manage
-    return render_template("admin_dashboard.html", users=users)
+    return render_template('admin_dashboard.html', users=users)
+
+# Admin pages
+@app.route('/admin-signup')
+def admin_sign_up():
+    return render_template('admin_sign_up.html')
+
+@app.route('/admin-login')
+def admin_login():
+    return render_template('admin_login.html')
 
 @app.route("/portfolio")
 @login_required
@@ -379,13 +389,13 @@ def stockorder():
 def sell_page():
     return render_template("sellingstocks.html")
     
-MARKET_HOURS = {
-    "NYSE": {
-        "open": datetime.time(9, 30),
-        "close": datetime.time(16, 00),
-        "timezone": "America/New_York",
-    }
-}
+# MARKET_HOURS = {
+    # "NYSE": {
+        # "open": datetime.time(9, 30),
+        # "close": datetime.time(16, 00),
+        # "timezone": "America/New_York",
+    # }
+# }
 
 @admin_required
 def change_stock_market_hours(current_user, exchange: str, open_time: datetime.time, close_time: datetime.time):
