@@ -49,12 +49,18 @@ class User_Profile(db.Model):
     # avatar?
 
 # Admin Model (Hannah)
-class Administrator(db.Model):
+class Administrator(UserMixin, db.Model):
     __tablename__ = 'administrator'
     AdministratorId = db.Column(db.Integer, primary_key=True)
     Fullname = db.Column(db.String(255), nullable=False)
     Email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.Text(255), nullable=False)
+
+    def get_id(self):
+        return str(self.AdministratorId)
+
+    def role(self):
+        return "admin"
 
 
 # Company Model (Hannah)
@@ -139,6 +145,7 @@ class Exception(db.Model):
 # Create tables
 with app.app_context():
     db.create_all()
+
     # Add some sample data if needed
     # if not StockInventory.query.first():
         # stock1 = StockInventory(stockName='NVIDIA Corp', ticker='NVDA', quantity='500', currentMarketPrice='189.11')
@@ -162,7 +169,7 @@ def admin_required(f):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return User.query.get(int(user_id)) or Administrator.query.get(user_id)
 
 bcrypt = Bcrypt(app)
 
@@ -224,16 +231,16 @@ def admin_register():
    
     return render_template("admin_sign_up.html")
 
-#@app.route('/admin-login', methods=["GET", "POST"])
-# def admin_login():
-    # if request.method == "POST":
-        # email = Email.query.filter_by(Email=request.form.get("Email")).first()
-        # if email and bcrypt.check_password_hash(user.password, request.form.get("password")):
-            # login_user(user)
-            # return redirect(url_for("admin_dashboard"))
-        # else:
-            # flash('Invalid username or password', 'error')
-    # return render_template("admin_login.html")
+@app.route('/admin-login', methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        administrator = Administrator.query.filter_by(Email=request.form.get("Email")).first()
+        if administrator and bcrypt.check_password_hash(administrator.password, request.form.get("password")):
+            login_user(administrator)
+            return redirect(url_for("admin_dashboard"))
+        else:
+            flash('Invalid username or password', 'error')
+    return render_template("admin_login.html")
 
 def admin_required(f):
     @wraps(f)
@@ -291,15 +298,6 @@ def change_role(user_id):
 def admin_dashboard():
     users = User.query.all()  # Get all users for admin to manage
     return render_template('admin_dashboard.html', users=users)
-
-# Admin pages
-@app.route('/admin-signup')
-def admin_sign_up():
-    return render_template('admin_sign_up.html')
-
-@app.route('/admin-login')
-def admin_login():
-    return render_template('admin_login.html')
 
 @app.route("/portfolio")
 @login_required
