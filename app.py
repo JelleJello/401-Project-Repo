@@ -325,15 +325,27 @@ def contact():
     return render_template("contact.html")
 
 @app.route("/createstocks", methods=['GET', 'POST'])
+@login_required
+@admin_required
 def add_stocks():
     if request.method == 'POST':
-            name = request.form['name']
-            quantity = int(request.form['quantity'])
-            price = float(request.form['price'])
-            new_item = StockInventory(name=name, quantity=quantity, price=price)
+            stockName = request.form.get('stockName')
+            ticker = request.form.get('ticker')
+            quantity = int(request.form('quantity'))
+            currentMarketPrice = float(request.form('currentMarketPrice'))
+
+            new_stock = StockInventory(
+                stockName=stockName,
+                ticker=ticker,
+                quantity=quantity,
+                currentMarketPrice=currentMarketPrice
+            )
             db.session.add(new_item)
             db.session.commit()
-            return redirect(url_for('index'))
+
+            flash(f'Stock "{stockName}" added successfully.', 'success')
+            return redirect(url_for('admin_dashboard'))
+            
     return render_template('admin_dashboard.html')
 
 @app.route('/editstocks/<int:item_id>', methods=['GET', 'POST'])
