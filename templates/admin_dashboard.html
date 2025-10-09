@@ -1,29 +1,54 @@
 {% extends "base.html" %}
-{% block title %}About{% endblock %}
+{% block title %}Admin Dashboard{% endblock %}
 {% block content %}
 
-<h3>Add New Stock To Market</h3>
-<form method="POST" action="{{ url_for('add_stocks') }}">
-    <div>
-        <label>Stock Name:</label>
-        <input type="text" name="stockName" required>
-    </div>
-    <div>
-        <label>Ticker Symbol:</label>
-        <input type="text" name="ticker" required>
-    </div>
-    <div>
-        <label>Quantity:</label>
-        <input type="number" name="quantity" required min="1">
-    </div>
-    <div>
-        <label>Market Price ($):</label>
-        <input type="number" name="price" step="0.01" required min="0">
-    </div>
-    <button type="submit">Add Stock</button>
-</form>
+<div class="container mt-5">
 
+    <!-- Dashboard Heading -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-primary">Admin Dashboard</h1>
+    </div>
 
+    <!-- Admin Actions -->
+    <div class="mb-5 text-center">
+        <a href="{{ url_for('add_stocks') }}" class="btn btn-outline-danger">Add Stocks to Market</a>
+        <a href="{{ url_for('change_stock_market_hours') }}" class="btn btn-outline-secondary me-2">Edit Market Hours</a>
+        <a href="{{ url_for('manage_user') }}" class="btn btn-outline-secondary me-2">Manage User Accounts</a>
+        <a href="{{ url_for('delete_user') }}" class="btn btn-outline-danger">Delete User Accounts</a>
+    </div>
 
+    <!-- Add Stock Form -->
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add New Stock to Market</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('add_stocks') }}">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="stockName" class="form-label">Stock Name</label>
+                        <input type="text" class="form-control" id="stockName" name="stockName" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ticker" class="form-label">Ticker Symbol</label>
+                        <input type="text" class="form-control" id="ticker" name="ticker" required>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" required min="1">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="price" class="form-label">Market Price ($)</label>
+                        <input type="number" class="form-control" id="price" name="price" step="0.01" required min="0">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">Add Stock</button>
+            </form>
+        </div>
+    </div>
+
+</div>
 
 {% endblock %}
