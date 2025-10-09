@@ -137,8 +137,8 @@ class Exception(db.Model):
     AdministratorId = db.Column(db.Integer, db.ForeignKey('administrator.AdministratorId'))
 
 # Create tables
-# with app.app_context():
-    # db.create_all()
+with app.app_context():
+    db.create_all()
     # Add some sample data if needed
     # if not StockInventory.query.first():
         # stock1 = StockInventory(stockName='NVIDIA Corp', ticker='NVDA', quantity='500', currentMarketPrice='189.11')
