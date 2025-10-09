@@ -146,17 +146,17 @@ class Exception(db.Model):
 with app.app_context():
     db.create_all()
 
-    # Add some sample data if needed
-    # if not StockInventory.query.first():
-        # stock1 = StockInventory(stockName='NVIDIA Corp', ticker='NVDA', quantity='500', currentMarketPrice='189.11')
-        # stock2 = StockInventory(stockName='Intel Corp', ticker='INTC', quantity='500', currentMarketPrice='37.43')
-        # stock3 = StockInventory(stockName='Advanced Micro Devices Inc', ticker='AMD', quantity='500', currentMarketPrice='235.56')
-        # stock4 = StockInventory(stockName='Amazon.com Inc', ticker='AMZN', quantity='500', currentMarketPrice='225.22')
-        # db.session.add(stock1)
-        # db.session.add(stock2)
-        # db.session.add(stock3)
-        # db.session.add(stock4)
-        # db.session.commit()
+    # hard coded sample data for stocks
+    if not StockInventory.query.first():
+        stock1 = StockInventory(stockName='NVIDIA Corp', ticker='NVDA', quantity='500', currentMarketPrice='189.11')
+        stock2 = StockInventory(stockName='Intel Corp', ticker='INTC', quantity='500', currentMarketPrice='37.43')
+        stock3 = StockInventory(stockName='Advanced Micro Devices Inc', ticker='AMD', quantity='500', currentMarketPrice='235.56')
+        stock4 = StockInventory(stockName='Amazon.com Inc', ticker='AMZN', quantity='500', currentMarketPrice='225.22')
+        db.session.add(stock1)
+        db.session.add(stock2)
+        db.session.add(stock3)
+        db.session.add(stock4)
+        db.session.commit()
 
 # User or Admin authentication check
 def admin_required(f):
@@ -317,42 +317,38 @@ def about():
 def contact():
     return render_template("contact.html")
 
-# @app.route("/createstocks", methods=['GET', 'POST'])
-# def add_stocks():
-#     if request.method == 'POST':
-#             name = request.form['name']
-#             quantity = int(request.form['quantity'])
-#             price = float(request.form['price'])
-#             new_item = StockInventory(name=name, quantity=quantity, price=price)
-#             db.session.add(new_item)
-#             db.session.commit()
-#             return redirect(url_for('index'))
-#     return render_template('admin_dashboard.html')
+@app.route("/createstocks", methods=['GET', 'POST'])
+def add_stocks():
+    if request.method == 'POST':
+            name = request.form['name']
+            quantity = int(request.form['quantity'])
+            price = float(request.form['price'])
+            new_item = StockInventory(name=name, quantity=quantity, price=price)
+            db.session.add(new_item)
+            db.session.commit()
+            return redirect(url_for('index'))
+    return render_template('admin_dashboard.html')
 
-# @app.route('/editstocks/<int:item_id>', methods=['GET', 'POST'])
-# def edit_item(StockInventory_id):
-#     stock = StockInventory.query.get_or_404(StockInventory_id)
-#     if request.method == 'POST':
-#         stock.name = request.form['name']
-#         stock.quantity = int(request.form['quantity'])
-#         stock.price = float(request.form['price'])
-#         db.session.commit()
-#         return redirect(url_for('index'))
-#     return render_template('edit_item.html', stock=stock)
+@app.route('/editstocks/<int:item_id>', methods=['GET', 'POST'])
+def edit_item(StockInventory_id):
+    stock = StockInventory.query.get_or_404(StockInventory_id)
+    if request.method == 'POST':
+        stock.name = request.form['name']
+        stock.quantity = int(request.form['quantity'])
+        stock.price = float(request.form['price'])
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template('edit_item.html', stock=stock)
 
-# @app.route('/deletestocks/<int:item_id>', methods=['POST'])
-# def delete_item(StockInventory_id):
-#     item = StockInventory.query.get_or_404(StockInventory_id)
-#     db.session.delete(item)
-#     db.session.commit()
-#     return redirect(url_for('index'))
+@app.route('/deletestocks/<int:item_id>', methods=['POST'])
+def delete_item(StockInventory_id):
+    item = StockInventory.query.get_or_404(StockInventory_id)
+    db.session.delete(item)
+    db.session.commit()
+    return redirect(url_for('index'))
 
 @app.route('/purchasingstocks', methods=["GET", "POST"])
 def purchasingstocks():
-    return render_template('purchasingstocks.html')
-
-@app.route('/stockorder', methods=['POST'])
-def stockorder():
     stock_symbol = request.form.get('symbol')
     amount_stock = request.form.get('quantity')
 
@@ -371,7 +367,7 @@ def stockorder():
 
     # Here, you'd typically get the stock price from an API
     # For this example, let's assume a dummy stock price
-    stock_price = 100.0  # Placeholder price
+    stock_price = StockInventory.query.filter_by(currentMarketPrice='symbol').first()
     total_cost = stock_price * amount
 
     new_order = OrderHistory(
