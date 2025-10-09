@@ -421,14 +421,12 @@ def change_stock_market_hours(current_user, exchange: str, open_time: datetime.t
 def open_season():
     today = date.today()
     
-    # 1. Check for weekends (Saturday or Sunday)
+    # Check for weekends (Saturday or Sunday)
     # The weekday() method returns Monday as 0 and Sunday as 6.
     if Exception.query.filter_by(date=today).first():
         return False
 
-    # 2. Check for U.S. federal holidays
-    # Create an instance of the holidays library for the U.S.
-    # It will automatically generate a list of holidays for the current year.
+    # Check for U.S. federal holidays
     us_holidays = holidays.country_holidays('US')
     if today in us_holidays:
         return False
