@@ -426,7 +426,11 @@ def change_stock_market_hours(current_user, exchange: str, open_time: datetime.t
     This function can only be called by an admin, enforced by the decorator.
     """
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     working_day = Working_Day.query.filter_by(dayOfWeek=day_of_week).first()
+=======
+    working_day = WorkingDay.query.filter_by(dayOfWeek=weekday).first()
+>>>>>>> Stashed changes
 =======
     working_day = WorkingDay.query.filter_by(dayOfWeek=weekday).first()
 >>>>>>> Stashed changes
@@ -461,7 +465,11 @@ def open_season():
     # 1. Check for weekends (Saturday or Sunday)
     # The weekday() method returns Monday as 0 and Sunday as 6.
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     if ExceptionDay.query.filter_by(date=today).first():
+=======
+    if Exception.query.filter_by(date=today).first():
+>>>>>>> Stashed changes
 =======
     if Exception.query.filter_by(date=today).first():
 >>>>>>> Stashed changes
