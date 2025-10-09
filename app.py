@@ -52,6 +52,8 @@ class Administrator(UserMixin, db.Model):
     admin_exception= db.relationship('Exception', backref=db.backref('administrator'))
     admin_usermanagement = db.relationship('User', backref=db.backref('administrator'))
 
+    admin_stocks = db.relationship("StockInventory", back_populates="administrator")
+
     def get_id(self):
         return f"admin-{self.AdministratorId}"
 
@@ -91,6 +93,8 @@ class StockInventory(db.Model):
     createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
     updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'))
+
+    administrator = db.relationship("Administrator", back_populates="admin_stocks")
 
 # class WorkingDay (Natalie)
 class WorkingDay(db.Model):
@@ -298,14 +302,15 @@ def add_stocks():
     if request.method == 'POST':
             stockName = request.form.get('stockName')
             ticker = request.form.get('ticker')
-            quantity = int(request.form('quantity'))
-            currentMarketPrice = float(request.form('currentMarketPrice'))
+            quantity = int(request.form.get('quantity'))
+            currentMarketPrice = float(request.form.get('currentMarketPrice'))
 
             new_stock = StockInventory(
                 stockName=stockName,
                 ticker=ticker,
                 quantity=quantity,
-                currentMarketPrice=currentMarketPrice
+                currentMarketPrice=currentMarketPrice,
+                admin_id=current_user.AdministratorId
             )
             db.session.add(new_stock)
             db.session.commit()
@@ -441,61 +446,7 @@ if __name__ == "__main__":
     app.run(debug=True)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#discarded work
 # # Company Model (Hannah)
 # class Company(db.Model):
 #     __tablename__ = 'company'
