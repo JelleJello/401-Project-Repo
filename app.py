@@ -1,3 +1,4 @@
+from calendar import weekday
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap5
@@ -129,7 +130,7 @@ class StockInventory(db.Model):
 class Working_Day(db.Model):
     __tablename__ = 'working_day'
     workingDayId = db.Column(db.Integer, primary_key=True)
-    dayOfWeek = db.Column(db.String(255))
+    dayOfWeek = db.Column(db.Integer)  # 0=Monday, 6=Sunday
     startTime = db.Column(db.Integer)
     endTime = db.Column(db.Integer)
     createdAt = db.Column(db.Integer)
@@ -141,7 +142,7 @@ class Exception(db.Model):
     __tablename__ = 'exception'
     exceptionId = db.Column(db.Integer, primary_key=True)
     reason = db.Column(db.String(255))
-    holidayDate = db.Column(db.Integer)
+    holidayDate = db.Column(db.Date)
     createdAt = db.Column(db.Integer)
     updatedAt = db.Column(db.Integer)
     AdministratorId = db.Column(db.Integer, db.ForeignKey('administrator.AdministratorId'))
@@ -424,7 +425,11 @@ def change_stock_market_hours(current_user, exchange: str, open_time: datetime.t
     Changes the opening and closing hours for a specified stock exchange.
     This function can only be called by an admin, enforced by the decorator.
     """
+<<<<<<< Updated upstream
     working_day = Working_Day.query.filter_by(dayOfWeek=day_of_week).first()
+=======
+    working_day = WorkingDay.query.filter_by(dayOfWeek=weekday).first()
+>>>>>>> Stashed changes
 
     if working_day:
         print(f"⚙️ Changing hours for {exchange} from {working_day.open_time} to {open_time}...")
@@ -455,7 +460,11 @@ def open_season():
     
     # 1. Check for weekends (Saturday or Sunday)
     # The weekday() method returns Monday as 0 and Sunday as 6.
+<<<<<<< Updated upstream
     if ExceptionDay.query.filter_by(date=today).first():
+=======
+    if Exception.query.filter_by(date=today).first():
+>>>>>>> Stashed changes
         return False
 
     # 2. Check for U.S. federal holidays
