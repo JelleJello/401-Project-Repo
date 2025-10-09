@@ -5,7 +5,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask_bcrypt import Bcrypt
 from functools import wraps
 from datetime import datetime, date
-# import holidays
+import holidays
 
 from sqlalchemy import func
 # import pandas as pd
@@ -223,6 +223,17 @@ def admin_register():
         return redirect(url_for("admin_login"))
    
     return render_template("admin_sign_up.html")
+
+#@app.route('/admin-login', methods=["GET", "POST"])
+# def admin_login():
+    # if request.method == "POST":
+        # email = Email.query.filter_by(Email=request.form.get("Email")).first()
+        # if email and bcrypt.check_password_hash(user.password, request.form.get("password")):
+            # login_user(user)
+            # return redirect(url_for("admin_dashboard"))
+        # else:
+            # flash('Invalid username or password', 'error')
+    # return render_template("admin_login.html")
 
 def admin_required(f):
     @wraps(f)
