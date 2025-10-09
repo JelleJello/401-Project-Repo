@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Signup{% endblock %}
+{% block title %}Admin Signup{% endblock %}
 {% block content %}
 
-<section class="vh-100" style="background-color: #eee;">
+<section class="vh-100" style="background-color: #313030;">
   <div class="container h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
       <div class="col-lg-12 col-xl-11">
@@ -13,21 +13,21 @@
 
                 <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up</p>
 
-                <form method="POST">
+                <form method="POST" action="{{ url_for('admin_register') }}" class="mx-1 mx-md-4">
 
                   <div class="d-flex flex-row align-items-center mb-4">
                     <i class="fas fa-user fa-lg me-3 fa-fw"></i>
                     <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                      <label for="username" class="form-label">Username</label>
-                      <input type="text" class="form-control" id="username" name="username" required>
+                      <label for="Fullname" class="form-label">Full Name</label>
+                      <input type="text" class="form-control" id="Fullname" name="Fullname" required>
                     </div>
                   </div>
 
                   <div class="d-flex flex-row align-items-center mb-4">
                     <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
                     <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                      <label for="email" class="form-label">Email</label>
-                      <input type="email" class="form-control" id="email" name="email" required>
+                      <label for="Email" class="form-label">Email</label>
+                      <input type="Email" class="form-control" id="Email" name="Email" required>
                     </div>
                   </div>
 
@@ -36,6 +36,14 @@
                     <div data-mdb-input-init class="form-outline flex-fill mb-0">
                       <label for="password" class="form-label">Password</label>
                       <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <i class="fas fa-key fa-lg me-3 fa-fw"></i>
+                    <div class="form-outline flex-fill mb-0">
+                      <label for="admin_key" class="form-label">Admin Key</label>
+                      <input type="text" class="form-control" id="admin_key" name="admin_key" required>
                     </div>
                   </div>
 
