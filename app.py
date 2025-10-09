@@ -32,24 +32,12 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(50), default="user", nullable=False)
+    user_portfolio = db.relationship('Portfolio', backref=db.backref('user'), uselist=False)
+    user_orderhistory = db.relationship('OrderHistory', backref=db.backref('user'))
+    admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'), unique=True)
 
     def get_id(self):
         return f"user-{self.id}"
-
-# class user profile (Natalie)
-class User_Profile(db.Model):
-    __tablename__ = 'user_profile'
-    user_profile_id = db.Column(db.Integer, primary_key=True)
-    fullName = db.Column(db.String(255))
-    hashedPassword = db.Column(db.String(255))
-    stocks = db.Column(db.String(255))
-    email = db.Column(db.String(255))
-    orderId = db.Column(db.Integer)
-    portfolio = db.Column(db.String(255))
-    availableFunds = db.Column(db.Integer)
-    createdAt = db.Column(db.Integer)
-    updatedAt = db.Column(db.Integer)
-    # avatar?
 
 # Admin Model (Hannah)
 class Administrator(UserMixin, db.Model):
@@ -58,6 +46,11 @@ class Administrator(UserMixin, db.Model):
     Fullname = db.Column(db.String(255), nullable=False)
     Email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.Text(255), nullable=False)
+    admin_orderhistory = db.relationship('OrderHistory', backref=db.backref('administrator'))
+    admin_stocks = db.relationship('StockInventory', backref=db.backref('administrator'))
+    admin_workingday = db.relationship('WorkingDay', backref=db.backref('administrator'))
+    admin_exception= db.relationship('Exception', backref=db.backref('administrator'))
+    admin_usermanagement = db.relationship('User', backref=db.backref('administrator'))
 
     def get_id(self):
         return f"admin-{self.AdministratorId}"
@@ -65,31 +58,6 @@ class Administrator(UserMixin, db.Model):
     @property
     def role(self):
         return "admin"
-
-
-# Company Model (Hannah)
-class Company(db.Model):
-    __tablename__ = 'company'
-    companyId = db.Column(db.Integer, primary_key=True)
-    Name = db.Column(db.String(255))
-    Description = db.Column(db.String(255))
-    stockTotalQantity = db.Column(db.Integer)
-    ticker = db.Column(db.Integer)
-    currentMarketPrice = db.Column(db.Integer)
-    createdAt = db.Column(db.Integer)
-    updatedAt = db.Column(db.Integer)
-
-# Financial Transaction Model (Hannah)
-class Financial_transaction(db.Model):
-    __tablename__ = 'financial_transaction'
-    FinancialTransactionId = db.Column(db.Integer, primary_key=True)
-    amount = db.Column(db.Integer)
-    type_BUYSELL = db.Column(db.String(255))
-    createdAt = db.Column(db.Integer)
-    customerAccountNumber = db.Column(db.Integer, db.ForeignKey('user_profile.user_profile_id'), nullable=False)
-    companyId = db.Column(db.Integer, db.ForeignKey('company.companyId'), nullable=False)
-    # reltionship to Financial_transaction(db.Model)
-    # financial_transactions = db.relationship('Financial_Transaction', backref='author', lazy='dynamic')
 
 # Order History Model (Jenelle)
 class OrderHistory(db.Model):
@@ -101,6 +69,7 @@ class OrderHistory(db.Model):
     ticker = db.Column(db.String(10), unique=True, nullable=False)
     createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'))
 
 # Porfolio Model (Jenelle)
 class Portfolio(db.Model):
@@ -109,8 +78,7 @@ class Portfolio(db.Model):
     walletAmount = db.Column(db.Integer, nullable=False, default=10000)
     createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
     updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    portfolio_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    user_order_history = db.Column(db.ForeignKey('orderhistory.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True)
 
 # StockInventory Model (Jenelle)
 class StockInventory(db.Model):
@@ -122,11 +90,10 @@ class StockInventory(db.Model):
     currentMarketPrice = db.Column(db.DECIMAL(10, 2), nullable=False)
     createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
     updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    # company_id = db.Column(db.Integer, db.ForeignKey('company.companyId'), nullable=False)
-    # administrator_id = db.Column(db.ForeignKey('administrator.AdministratorId'), nullable=False)
+    admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'))
 
 # class WorkingDay (Natalie)
-class Working_Day(db.Model):
+class WorkingDay(db.Model):
     __tablename__ = 'working_day'
     workingDayId = db.Column(db.Integer, primary_key=True)
     dayOfWeek = db.Column(db.String(255))
@@ -134,7 +101,7 @@ class Working_Day(db.Model):
     endTime = db.Column(db.Integer)
     createdAt = db.Column(db.Integer)
     updatedAt = db.Column(db.Integer)
-    AdministratorId = db.Column(db.Integer, db.ForeignKey('administrator.AdministratorId'))
+    admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'), unique=True)
 
 # class Exception (Natalie)
 class Exception(db.Model):
@@ -144,7 +111,7 @@ class Exception(db.Model):
     holidayDate = db.Column(db.Integer)
     createdAt = db.Column(db.Integer)
     updatedAt = db.Column(db.Integer)
-    AdministratorId = db.Column(db.Integer, db.ForeignKey('administrator.AdministratorId'))
+    admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'), unique=True)
 
 # Create tables
 with app.app_context():
@@ -340,7 +307,7 @@ def add_stocks():
                 quantity=quantity,
                 currentMarketPrice=currentMarketPrice
             )
-            db.session.add(new_item)
+            db.session.add(new_stock)
             db.session.commit()
 
             flash(f'Stock "{stockName}" added successfully.', 'success')
@@ -470,6 +437,100 @@ def market_status():
         })
 
 
-
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # Company Model (Hannah)
+# class Company(db.Model):
+#     __tablename__ = 'company'
+#     companyId = db.Column(db.Integer, primary_key=True)
+#     Name = db.Column(db.String(255))
+#     Description = db.Column(db.String(255))
+#     stockTotalQantity = db.Column(db.Integer)
+#     ticker = db.Column(db.Integer)
+#     currentMarketPrice = db.Column(db.Integer)
+#     createdAt = db.Column(db.Integer)
+#     updatedAt = db.Column(db.Integer)
+
+# # Financial Transaction Model (Hannah)
+# class Financial_transaction(db.Model):
+#     __tablename__ = 'financial_transaction'
+#     FinancialTransactionId = db.Column(db.Integer, primary_key=True)
+#     amount = db.Column(db.Integer)
+#     type_BUYSELL = db.Column(db.String(255))
+#     createdAt = db.Column(db.Integer)
+#     customerAccountNumber = db.Column(db.Integer, db.ForeignKey('user_profile.user_profile_id'), nullable=False)
+#     companyId = db.Column(db.Integer, db.ForeignKey('company.companyId'), nullable=False)
+#     # reltionship to Financial_transaction(db.Model)
+#     # financial_transactions = db.relationship('Financial_Transaction', backref='author', lazy='dynamic')
+
+# # class user profile (Natalie)
+# class User_Profile(db.Model):
+#     __tablename__ = 'user_profile'
+#     user_profile_id = db.Column(db.Integer, primary_key=True)
+#     fullName = db.Column(db.String(255))
+#     hashedPassword = db.Column(db.String(255))
+#     stocks = db.Column(db.String(255))
+#     email = db.Column(db.String(255))
+#     orderId = db.Column(db.Integer)
+#     portfolio = db.Column(db.String(255))
+#     availableFunds = db.Column(db.Integer)
+#     createdAt = db.Column(db.Integer)
+#     updatedAt = db.Column(db.Integer)
+#     # avatar?
