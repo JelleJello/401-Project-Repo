@@ -4,7 +4,6 @@
 
 <div class="container mt-5">
 
-    <!-- Dashboard Heading -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="text-primary">Admin Dashboard</h1>
     </div>
@@ -12,9 +11,6 @@
     <!-- Admin Actions -->
     <div class="mb-5 text-center">
         <a href="{{ url_for('add_stocks') }}" class="btn btn-outline-danger">Add Stocks to Market</a>
-        <a href="{{ url_for('change_stock_market_hours') }}" class="btn btn-outline-secondary me-2">Edit Market Hours</a>
-        <a href="{{ url_for('manage_user') }}" class="btn btn-outline-secondary me-2">Manage User Accounts</a>
-        <a href="{{ url_for('delete_user') }}" class="btn btn-outline-danger">Delete User Accounts</a>
     </div>
 
     <!-- Add Stock Form -->
