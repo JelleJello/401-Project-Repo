@@ -424,15 +424,30 @@ def change_stock_market_hours(current_user, exchange: str, open_time: datetime.t
     Changes the opening and closing hours for a specified stock exchange.
     This function can only be called by an admin, enforced by the decorator.
     """
-    if exchange in MARKET_HOURS:
-        print(f"⚙️ Changing hours for {exchange} from {MARKET_HOURS[exchange]['open']} to {open_time}...")
-        MARKET_HOURS[exchange]["open"] = open_time
-        MARKET_HOURS[exchange]["close"] = close_time
-        print(f" Successfully updated {exchange} hours to Open: {open_time}, Close: {close_time}")
-        return MARKET_HOURS[exchange]
+    working_day = Working_Day.query.filter_by(dayOfWeek=day_of_week).first()
+
+    if working_day:
+        print(f"⚙️ Changing hours for {exchange} from {working_day.open_time} to {open_time}...")
+        working_day.open_time = open_time
+        working_day.close_time = close_time
     else:
-        print(f" Exchange {exchange} not found.")
-        return None
+        # If not found, create a new entry
+        print(f"➕ Creating new working day entry for {exchange}.")
+        working_day = WorkingDay(
+            exchange=exchange,
+            open_time=open_time,
+            close_time=close_time,
+            timezone="America/New_York"  # Or make this dynamic
+        )
+        db.session.add(working_day)
+
+    db.session.commit()
+    print(f"✅ Successfully updated {exchange} hours to Open: {open_time}, Close: {close_time}")
+    return {
+        "exchange": exchange,
+        "open": open_time,
+        "close": close_time
+    }
     
 @admin_required
 def open_season():
@@ -440,7 +455,7 @@ def open_season():
     
     # 1. Check for weekends (Saturday or Sunday)
     # The weekday() method returns Monday as 0 and Sunday as 6.
-    if today.weekday() >= 5:  # 5 is Saturday, 6 is Sunday
+    if ExceptionDay.query.filter_by(date=today).first():
         return False
 
     # 2. Check for U.S. federal holidays
