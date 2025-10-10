@@ -330,7 +330,7 @@ def purchasingstocks():
         flash("Order couldn't go through.", 'buy-error')
         return redirect(url_for('purchasingstocks'))
     
-@app.route("/sellingstocks")
+@app.route("/sellingstocks", methods=["GET", "POST"])
 @login_required
 def sellingstocks():
     if request.method == "GET":
