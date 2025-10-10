@@ -84,6 +84,7 @@ footer a:hover {
 
 .nav-link {
   color: #FDF6E3 !important;
+  font-weight: 700;
 }
 
 .nav-link:hover {
