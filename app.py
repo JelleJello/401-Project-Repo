@@ -286,6 +286,7 @@ def about():
 
 
 # market functions BUY/SELL (for user)
+# linking to db so when a user purchases or sells stocks it reflects on their balance and shows up on their order history
 @app.route('/purchasingstocks', methods=["GET", "POST"])
 @login_required
 def purchasingstocks():
