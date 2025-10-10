@@ -7,7 +7,7 @@ body {
   padding-bottom: 100px;
   background-color: #FFF8F0;
   color: #5C4033;
-  /* font-family: ;*/
+  /* font-family: ; maybe??? custom fonts might not look as nice to look at */
 }
 
 h1 {
@@ -49,6 +49,11 @@ footer a:hover {
   margin-bottom: 20px;
 }
 
+.card-header {
+  background-color: #5C4033;
+  color: #FFF8F0;
+}
+
 /* button styles */
 .btn-warning {
   background-color: #FFB347;
@@ -59,6 +64,17 @@ footer a:hover {
 .btn-warning:hover {
   background-color: #F4A261;
   color: #fff;
+}
+
+.btn-danger {
+  background-color: #ff754b;
+  border: none;
+  color: #FFF8F0;
+}
+
+.btn-danger:hover {
+  background-color: #FFB347;
+  color: #FFF8F0;
 }
 
 .btn-outline-light {
