@@ -172,7 +172,7 @@ def login():
             login_user(user)
             return redirect(url_for("portfolio"))
         else:
-            flash('Invalid username or password', 'error')
+            flash('Invalid username or password', 'login-error')
     return render_template("login.html")
 
 @app.route("/")
@@ -284,11 +284,69 @@ def market():
 def about():
     return render_template("about.html")
 
-@app.route("/contact")
-def contact():
-    return render_template("contact.html")
 
+# market functions BUY/SELL (for user)
+@app.route('/purchasingstocks', methods=["GET", "POST"])
+@login_required
+def purchasingstocks():
+    if request.method == "GET":
+        return render_template("buy_function.html")
+
+    stock_symbol = request.form.get('symbol')
+    amount_stock = request.form.get('quantity')
+
+    # Validate inputs
+    if not stock_symbol or not amount_stock:
+        flash("Order couldn't go through: Missing information.", 'buy-error')
+        return redirect(url_for('purchasingstocks'))
+
+    try:
+        amount = int(amount_stock)
+        if amount <= 0:
+            raise ValueError
+    except ValueError:
+        flash("Order couldn't go through: Invalid amount.", 'buy-error')
+        return redirect(url_for('market'))
+
+    # getting stock price from stock in db
+    stock_price = StockInventory.query.filter_by(currentMarketPrice='symbol').first()
+    total_cost = stock_price * amount
+
+    new_order = OrderHistory(
+        order_type='buy',
+        quantity=amount,
+        total_amount=total_cost,
+        ticker=stock_symbol,
+        date=db.DateTime(timezone=True),server_default=func.now()
+    )
+
+    try:
+        db.session.add(new_order)
+        db.session.commit()
+        flash(f"Successfully bought {amount} shares of {stock_symbol}.")
+        return redirect(url_for('portfolio'))
+    except:
+        db.session.rollback()
+        flash("Order couldn't go through.", 'buy-error')
+        return redirect(url_for('purchasingstocks'))
+    
+@app.route("/sellingstocks")
+@login_required
+def sell_page():
+    return render_template("sellingstocks.html")
+    
+# MARKET_HOURS = {
+    # "NYSE": {
+        # "open": datetime.time(9, 30),
+        # "close": datetime.time(16, 00),
+        # "timezone": "America/New_York",
+    # }
+# }
+
+# ADMIN FUNCTIONS
 @app.route("/createstocks", methods=['GET', 'POST'])
+@login_required
+@admin_required
 def add_stocks():
     if request.method == 'POST':
             stockName = request.form['stockName']
@@ -317,7 +375,7 @@ def edit_item(StockInventory_id):
         stock.quantity = int(request.form['quantity'])
         stock.price = float(request.form['price'])
         db.session.commit()
-        return redirect(url_for('index'))
+        return redirect(url_for('admin_dashboard'))
     return render_template('edit_item.html', stock=stock)
 
 @app.route('/deletestocks/<int:item_id>', methods=['POST'])
@@ -325,62 +383,7 @@ def delete_item(StockInventory_id):
     item = StockInventory.query.get_or_404(StockInventory_id)
     db.session.delete(item)
     db.session.commit()
-    return redirect(url_for('index'))
-
-@app.route('/purchasingstocks', methods=["GET", "POST"])
-@login_required
-def purchasingstocks():
-    stock_symbol = request.form.get('symbol')
-    amount_stock = request.form.get('quantity')
-
-    # Validate inputs
-    if not stock_symbol or not amount_stock:
-        flash("Order couldn't go through: Missing information.")
-        return redirect(url_for('purchasingstocks'))
-
-    try:
-        amount = int(amount_stock)
-        if amount <= 0:
-            raise ValueError
-    except ValueError:
-        flash("Order couldn't go through: Invalid amount.")
-        return redirect(url_for('market'))
-
-    # getting stock price from stock in db
-    stock_price = StockInventory.query.filter_by(currentMarketPrice='symbol').first()
-    total_cost = stock_price * amount
-
-    new_order = OrderHistory(
-        order_type='buy',
-        quantity=amount,
-        total_amount=total_cost,
-        ticker=stock_symbol,
-        date=db.DateTime(timezone=True),server_default=func.now()
-    )
-
-    try:
-        db.session.add(new_order)
-        db.session.commit()
-        flash(f"Successfully bought {amount} shares of {stock_symbol}.")
-        return redirect(url_for('portfolio'))
-    except:
-        db.session.rollback()
-        flash("Order couldn't go through.")
-        return redirect(url_for('market'))
-    
-
-@app.route("/sellingstocks")
-@login_required
-def sell_page():
-    return render_template("sellingstocks.html")
-    
-# MARKET_HOURS = {
-    # "NYSE": {
-        # "open": datetime.time(9, 30),
-        # "close": datetime.time(16, 00),
-        # "timezone": "America/New_York",
-    # }
-# }
+    return redirect(url_for('admin_dashboard'))
 
 @admin_required
 def change_stock_market_hours(current_user, exchange: str, open_time: datetime.time, close_time: datetime.time):
@@ -446,98 +449,3 @@ def market_status():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# # Company Model (Hannah)
-# class Company(db.Model):
-#     __tablename__ = 'company'
-#     companyId = db.Column(db.Integer, primary_key=True)
-#     Name = db.Column(db.String(255))
-#     Description = db.Column(db.String(255))
-#     stockTotalQantity = db.Column(db.Integer)
-#     ticker = db.Column(db.Integer)
-#     currentMarketPrice = db.Column(db.Integer)
-#     createdAt = db.Column(db.Integer)
-#     updatedAt = db.Column(db.Integer)
-
-# # Financial Transaction Model (Hannah)
-# class Financial_transaction(db.Model):
-#     __tablename__ = 'financial_transaction'
-#     FinancialTransactionId = db.Column(db.Integer, primary_key=True)
-#     amount = db.Column(db.Integer)
-#     type_BUYSELL = db.Column(db.String(255))
-#     createdAt = db.Column(db.Integer)
-#     customerAccountNumber = db.Column(db.Integer, db.ForeignKey('user_profile.user_profile_id'), nullable=False)
-#     companyId = db.Column(db.Integer, db.ForeignKey('company.companyId'), nullable=False)
-#     # reltionship to Financial_transaction(db.Model)
-#     # financial_transactions = db.relationship('Financial_Transaction', backref='author', lazy='dynamic')
-
-# # class user profile (Natalie)
-# class User_Profile(db.Model):
-#     __tablename__ = 'user_profile'
-#     user_profile_id = db.Column(db.Integer, primary_key=True)
-#     fullName = db.Column(db.String(255))
-#     hashedPassword = db.Column(db.String(255))
-#     stocks = db.Column(db.String(255))
-#     email = db.Column(db.String(255))
-#     orderId = db.Column(db.Integer)
-#     portfolio = db.Column(db.String(255))
-#     availableFunds = db.Column(db.Integer)
-#     createdAt = db.Column(db.Integer)
-#     updatedAt = db.Column(db.Integer)
-#     # avatar?
