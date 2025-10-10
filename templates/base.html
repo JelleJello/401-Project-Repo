@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Stock Trading Breeze{% endblock %}</title>
+    <title>{% block title %}ChaiStocks{% endblock %}</title>
     {{ bootstrap.load_css() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
@@ -29,23 +30,26 @@
             </div>
         </div>
     </header>
-<footer class="fixed-bottom bg-light">
+
+    {% block content %}{% endblock %}
+
+    <footer class="fixed-bottom py-3 bg-light">
         <div class="container">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start">
-                    <span class="text-muted">&copy; 2025 Stock Trading Breeze. All rights reserved.</span>
+                    <span class="text-muted">&copy; 2025 ChaiStocks. All rights reserved.</span>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <ul class="list-inline mb-0">
                         <li class="list-inline-item"><a href="#" class="text-muted">Privacy Policy</a></li>
                         <li class="list-inline-item"><a href="#" class="text-muted">Terms of Use</a></li>
-                        <li class="list-inline-item"><a href="{{ url_for('contact') }}" class="text-muted">Contact Us</a></li>
+                        <li class="list-inline-item"><a href="#" class="text-muted">Contact Us</a></li>
                     </ul>
                 </div>
             </div>
         </div>
     </footer>
-    {% block content %}{% endblock %}
+
 </body>
 
 </html>
