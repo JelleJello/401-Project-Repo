@@ -368,6 +368,8 @@ def add_stocks():
     return render_template('admin_dashboard.html')
 
 @app.route('/editstocks/<int:item_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
 def edit_item(StockInventory_id):
     stock = StockInventory.query.get_or_404(StockInventory_id)
     if request.method == 'POST':
@@ -379,6 +381,8 @@ def edit_item(StockInventory_id):
     return render_template('edit_item.html', stock=stock)
 
 @app.route('/deletestocks/<int:item_id>', methods=['POST'])
+@login_required
+@admin_required
 def delete_item(StockInventory_id):
     item = StockInventory.query.get_or_404(StockInventory_id)
     db.session.delete(item)
