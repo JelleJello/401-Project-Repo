@@ -9,7 +9,7 @@ HTML not stylized -->
   {% if messages %}
     <div class="mb-4">
       {% for category, message in messages %}
-        {% if category == 'buy-error' %}
+        {% if category == 'sell-error' %}
           <div class="alert alert-danger alert-dismissible fade show" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
