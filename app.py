@@ -290,7 +290,7 @@ def about():
 @login_required
 def purchasingstocks():
     if request.method == "GET":
-        return render_template("buy_function.html")
+        return render_template("purchasingstocks.html")
 
     stock_symbol = request.form.get('symbol')
     amount_stock = request.form.get('quantity')
