@@ -49,12 +49,6 @@ footer a:hover {
   margin-bottom: 20px;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: #DDE8D3;
-}
-
 /* button styles */
 .btn-warning {
   background-color: #FFB347;
