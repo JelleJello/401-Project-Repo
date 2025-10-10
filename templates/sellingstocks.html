@@ -1,19 +1,23 @@
+<!-- May not be connected to db
+Not linked to any button on the market so that the user can access it
+HTML not stylized -->
 {% extends "base.html" %}
 {% block title %}Selling Stocks{% endblock %}
 {% block content %}
 
 {% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-<div class="mb-4">
-    {% for category, message in messages %}
-    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
-        role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  {% if messages %}
+    <div class="mb-4">
+      {% for category, message in messages %}
+        {% if category == 'buy-error' %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endif %}
+      {% endfor %}
     </div>
-    {% endfor %}
-</div>
-{% endif %}
+  {% endif %}
 {% endwith %}
 
 <section class="vh-100" style="background-color: #353535;">
