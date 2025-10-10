@@ -332,8 +332,47 @@ def purchasingstocks():
     
 @app.route("/sellingstocks")
 @login_required
-def sell_page():
-    return render_template("sellingstocks.html")
+def sellingstocks():
+    if request.method == "GET":
+        return render_template("sellingstocks.html")
+
+    stock_symbol = request.form.get('symbol')
+    amount_stock = request.form.get('quantity')
+
+    # Validate inputs
+    if not stock_symbol or not amount_stock:
+        flash("Order couldn't go through: Missing information.", 'sell-error')
+        return redirect(url_for('purchasingstocks'))
+
+    try:
+        amount = int(amount_stock)
+        if amount <= 0:
+            raise ValueError
+    except ValueError:
+        flash("Order couldn't go through: Invalid amount.", 'sell-error')
+        return redirect(url_for('market'))
+
+    # getting stock price from stock in db
+    stock_price = StockInventory.query.filter_by(currentMarketPrice='symbol').first()
+    total_cost = stock_price * amount
+
+    new_order = OrderHistory(
+        order_type='sell',
+        quantity=amount,
+        total_amount=total_cost,
+        ticker=stock_symbol,
+        date=db.DateTime(timezone=True),server_default=func.now()
+    )
+
+    try:
+        db.session.add(new_order)
+        db.session.commit()
+        flash(f"Successfully sold {amount} shares of {stock_symbol}.")
+        return redirect(url_for('portfolio'))
+    except:
+        db.session.rollback()
+        flash("Order couldn't go through.", 'sell-error')
+        return redirect(url_for('sellingstocks'))
     
 # MARKET_HOURS = {
     # "NYSE": {
