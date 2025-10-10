@@ -189,10 +189,6 @@ def logout():
 @app.route('/admin-register', methods=["GET", "POST"])
 def admin_register():
     if request.method == "POST":
-        # Verify the admin registration key
-        admin_key = request.form.get("admin_key")
-        if admin_key != "iamadmin":
-            return redirect(url_for("admin_login"))
        
         hashed_password = bcrypt.generate_password_hash(request.form.get("password")).decode('utf-8')
         admin = Administrator(
