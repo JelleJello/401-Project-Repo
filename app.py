@@ -342,7 +342,7 @@ def sellingstocks():
     # Validate inputs
     if not stock_symbol or not amount_stock:
         flash("Order couldn't go through: Missing information.", 'sell-error')
-        return redirect(url_for('purchasingstocks'))
+        return redirect(url_for('sellingstocks'))
 
     try:
         amount = int(amount_stock)
