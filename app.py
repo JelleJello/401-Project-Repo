@@ -273,7 +273,10 @@ def admin_dashboard():
 @app.route("/portfolio")
 @login_required
 def portfolio():
-    orderhistory = OrderHistory.query.all()
+    user_portfolio = Portfolio.query.filter_by(user_id=current_user.id).first()
+    wallet_amount = user_portfolio.walletAmount if user_portfolio else 0
+    orderhistory = OrderHistory.query.filter_by(user_id=current_user.id).all()
+    
     return render_template("portfolio.html", orderhistory=orderhistory)
 
 @app.route("/market")
