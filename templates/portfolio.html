@@ -36,7 +36,7 @@
                     <div class="card-header">Wallet</div>
                     <div class="card-body text-center d-flex flex-column justify-content-between">
                         <h5 class="card-title">Current Earnings</h5>
-                        <p class="card-text">10,500.27</p>
+                        <p class="card-text">${{ "{:,.2f}".format(wallet_amount or 0) }}</p>
                         <div class="mt-auto d-flex justify-content-center gap-2">
                         <a href="{{ url_for('purchasingstocks')}}" class="btn btn-primary mt-auto">Buy Stocks</a>
                         <a href="{{ url_for('sellingstocks') }}" class="btn btn-primary mt-auto">Sell Stocks</a>
