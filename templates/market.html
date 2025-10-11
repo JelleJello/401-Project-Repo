@@ -104,6 +104,36 @@
         </div>
     </div>
 
+     <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-8 mb-4 d-flex">
+                <div class="card w-100 h-100">
+                    <div class="card-header">Holdings</div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Shares</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stock in stocks %}
+                                <tr>
+                                    <th scope="row">{{ stock.stockName }}</th>
+                                    <td>{{ stock.quantity }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center">No holdings available.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
     <!-- Right Column: Market Overview -->
     <div class="col-md-8">
         <!-- Market Performance -->
