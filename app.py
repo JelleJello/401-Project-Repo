@@ -313,12 +313,12 @@ def purchasingstocks():
     # getting stock price from stock in db
     stock_price = StockInventory.query.filter_by(currentMarketPrice='symbol').first()
     total_cost = stock_price * amount
-#    total_amount = total_cost + orderhistory
+    total_amount = total_cost + db.walletAmount
 
     new_order = OrderHistory(
         order_type='buy',
         quantity=amount,
-        total_amount=total_cost,
+        total_amount=total_cost + db.walletAmount,
         ticker=stock_symbol,
         date=db.DateTime(timezone=True),server_default=func.now()
     )
@@ -358,11 +358,12 @@ def sellingstocks():
     # getting stock price from stock in db
     stock_price = StockInventory.query.filter_by(currentMarketPrice='symbol').first()
     total_cost = stock_price * amount
+    total_amount = db.walletAmount - total_cost
 
     new_order = OrderHistory(
         order_type='sell',
         quantity=amount,
-        total_amount=total_cost,
+        total_amount=db.walletAmount - total_cost,
         ticker=stock_symbol,
         date=db.DateTime(timezone=True),server_default=func.now()
     )
