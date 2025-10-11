@@ -38,8 +38,7 @@
                         <h5 class="card-title">Current Earnings</h5>
                         <p class="card-text">${{ "{:,.2f}".format(wallet_amount or 0) }}</p>
                         <div class="mt-auto d-flex justify-content-center gap-2">
-                        <a href="{{ url_for('purchasingstocks')}}" class="btn btn-primary mt-auto">Buy Stocks</a>
-                        <a href="{{ url_for('sellingstocks') }}" class="btn btn-primary mt-auto">Sell Stocks</a>
+                        <a href="{{ url_for('addfunds') }}" class="btn btn-primary mt-auto">Add Funds</a>
                     </div>
                 </div>
             </div>
@@ -84,13 +83,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for id in OrderHistory %}
+                    {% for order in orderhistory %}
                     <tr>
-                        <td>{{ order.id }}</td>
+                        <td>{{ order.ticker }}</td>
                         <td>{{ order.orderQuantity }}</td>
-                        <td>{{ order.Type }}</td>
-                        <td>{{ order.totalOrderAmount }}</td>
-                        <td>{{ order.createdAt }}</td>
+                        <td>{{ order.orderType }}</td>
+                        <td>{{ order.createdAt.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                     </tr>
                     {% else %}
                     <tr>
