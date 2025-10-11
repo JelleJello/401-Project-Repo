@@ -273,7 +273,8 @@ def admin_dashboard():
 @app.route("/portfolio")
 @login_required
 def portfolio():
-    return render_template("portfolio.html")
+    orderhistory = OrderHistory.query.all()
+    return render_template("portfolio.html", orderhistory=orderhistory)
 
 @app.route("/market")
 @login_required
