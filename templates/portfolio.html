@@ -34,10 +34,10 @@
             <div class="col-lg-4 mb-4">
                 <div class="card h-100">
                     <div class="card-header">Wallet</div>
-                    <div class="card-body">
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
                         <h5 class="card-title">Current Earnings</h5>
                         <p class="card-text">10,500.27</p>
-                        <div class="mt-auto">
+                        <div class="mt-auto d-flex justify-content-center gap-2">
                         <a href="{{ url_for('purchasingstocks')}}" class="btn btn-primary mt-auto">Buy Stocks</a>
                         <a href="{{ url_for('sellingstocks') }}" class="btn btn-primary mt-auto">Sell Stocks</a>
                     </div>
@@ -71,79 +71,12 @@
         </div>
     </div>
 
-    
-        
-    <div class="container mt-3 pb-5">
-        <div class="row">
-            <div class="col-lg-6 offset-lg-3">
-                <div class="card shadow">
-                    <div class="card-header text-center">
-                        <h4>Asset Allocation</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container" d-flex justify-content-center align-items-center"
-                            style="position: relative; height:40vh; width:100%;">
-                            <canvas id="assetAllocationChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="card h-100">
+        <div class="card-header">Order History</div>
+        <div class="card-body">
+
         </div>
     </div>
-    <script>
-        const portfolioData = {
-            labels: ['NVIDIA', 'AMD', 'INTEL'], data: [45, 35, 20]
-        };
-        const setupChart = () => {
-            const ctx = document.getElementById('assetAllocationChart').getContext('2d');
 
-            const assetAllocationChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: portfolioData.labels,
-                    datasets: [{
-                        data: portfolioData.data,
-                        backgroundColor: [
-                            'rgba(43, 179, 16, 0.8)',
-                            'rgba(255, 206, 86, 0.8)',
-                            'rgba(54, 162, 235, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(7, 107, 46, 1)',
-                            'rgba(156, 100, 15, 1)',
-                            'rgba(18, 89, 129, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        label += context.parsed + '%'; // Format tooltip to show percentage
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        };
-
-        // Call the function to set up the chart on page load
-        document.addEventListener('DOMContentLoaded', setupChart);
-    </script>
 </body>
 {% endblock %}
