@@ -74,7 +74,33 @@
     <div class="card h-100">
         <div class="card-header">Order History</div>
         <div class="card-body">
-
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Stock Name</th>
+                        <th>Quantity</th>
+                        <th>Type of Transaction</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for id in OrderHistory %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.orderQuantity }}</td>
+                        <td>{{ order.Type }}</td>
+                        <td>{{ order.totalOrderAmount }}</td>
+                        <td>{{ order.createdAt }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="100%" class="text-center p-4">
+                            No Order History. Buy or Sell Stocks!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 
