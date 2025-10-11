@@ -88,7 +88,7 @@
       <h4 class="mb-0">Edit Stocks in Market</h4>
     </div>
     <div class="card-body">
-      <form method="POST">
+      <form method="POST" action="{{ url_for('update_stock') }}">
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="stockName" class="form-label">Stock Name</label>
@@ -119,7 +119,7 @@
       <h4 class="mb-0">Delete Stock in Market</h4>
     </div>
     <div class="card-body">
-      <form method="POST">
+      <form method="POST" action="{{ url_for('delete_stock') }}">
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="stockName" class="form-label">Stock Name</label>
