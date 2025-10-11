@@ -278,7 +278,8 @@ def portfolio():
 @app.route("/market")
 @login_required
 def market():
-    return render_template("market.html")
+    stocks = StockInventory.query.all()
+    return render_template("market.html", stocks=stocks)
 
 @app.route("/about")
 def about():
@@ -286,7 +287,6 @@ def about():
 
 
 # market functions BUY/SELL (for user)
-# linking to db so when a user purchases or sells stocks it reflects on their balance and shows up on their order history
 @app.route('/purchasingstocks', methods=["GET", "POST"])
 @login_required
 def purchasingstocks():
@@ -330,8 +330,8 @@ def purchasingstocks():
         db.session.rollback()
         flash("Order couldn't go through.", 'buy-error')
         return redirect(url_for('purchasingstocks'))
-    
-@app.route("/sellingstocks", methods=["GET", "POST"])
+
+@app.route('/sellingstocks', methods=["GET", "POST"])
 @login_required
 def sellingstocks():
     if request.method == "GET":
@@ -351,7 +351,7 @@ def sellingstocks():
             raise ValueError
     except ValueError:
         flash("Order couldn't go through: Invalid amount.", 'sell-error')
-        return redirect(url_for('market'))
+        return redirect(url_for('portfolio'))
 
     # getting stock price from stock in db
     stock_price = StockInventory.query.filter_by(currentMarketPrice='symbol').first()
