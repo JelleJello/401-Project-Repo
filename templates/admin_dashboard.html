@@ -57,7 +57,7 @@
       <h4 class="mb-0">Add New Stock to Market</h4>
     </div>
     <div class="card-body">
-      <form method="POST">
+      <form method="POST" action="{{ url_for('add_stocks') }}">
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="stockName" class="form-label">Stock Name</label>
@@ -146,5 +146,6 @@
   </div>
 
 </div>
+
 
 {% endblock %}
