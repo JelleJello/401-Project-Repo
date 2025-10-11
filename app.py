@@ -313,6 +313,7 @@ def purchasingstocks():
     # getting stock price from stock in db
     stock_price = StockInventory.query.filter_by(currentMarketPrice='symbol').first()
     total_cost = stock_price * amount
+#    total_amount = total_cost + orderhistory
 
     new_order = OrderHistory(
         order_type='buy',
