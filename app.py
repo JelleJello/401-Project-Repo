@@ -297,7 +297,6 @@ def purchasingstocks():
     stock_symbol = request.form.get('symbol')
     amount_stock = request.form.get('quantity')
 
-    # Validate inputs
     if not stock_symbol or not amount_stock:
         flash("Order couldn't go through: Missing information.", 'buy-error')
         return redirect(url_for('purchasingstocks'))
@@ -308,30 +307,34 @@ def purchasingstocks():
             raise ValueError
     except ValueError:
         flash("Order couldn't go through: Invalid amount.", 'buy-error')
-        return redirect(url_for('market'))
+        return redirect(url_for('purchasingstocks'))
 
-    # getting stock price from stock in db
-    stock_price = StockInventory.query.filter_by(currentMarketPrice='symbol').first()
+    stock = StockInventory.query.filter_by(ticker=stock_symbol).first()
+    if not stock:
+        flash("Stock not found in inventory.", 'buy-error')
+        return redirect(url_for('purchasingstocks'))
+
+    stock_price = float(stock.currentMarketPrice)
     total_cost = stock_price * amount
-    total_amount = total_cost + db.walletAmount
 
     new_order = OrderHistory(
-        order_type='buy',
-        quantity=amount,
-        total_amount=total_cost + db.walletAmount,
+        orderType='buy',
+        orderQuantity=amount,
+        totalOrderAmount=total_cost,
         ticker=stock_symbol,
-        date=db.DateTime(timezone=True),server_default=func.now()
+        user_id=current_user.id
     )
 
     try:
         db.session.add(new_order)
         db.session.commit()
-        flash(f"Successfully bought {amount} shares of {stock_symbol}.")
+        flash(f"Successfully bought {amount} shares of {stock_symbol}.", 'success')
         return redirect(url_for('portfolio'))
-    except:
+    except Exception as e:
         db.session.rollback()
-        flash("Order couldn't go through.", 'buy-error')
+        flash("Order couldn't go through. Please try again.", 'buy-error')
         return redirect(url_for('purchasingstocks'))
+
 
 @app.route('/sellingstocks', methods=["GET", "POST"])
 @login_required
@@ -358,12 +361,11 @@ def sellingstocks():
     # getting stock price from stock in db
     stock_price = StockInventory.query.filter_by(currentMarketPrice='symbol').first()
     total_cost = stock_price * amount
-    total_amount = db.walletAmount - total_cost
 
     new_order = OrderHistory(
         order_type='sell',
         quantity=amount,
-        total_amount=db.walletAmount - total_cost,
+        total_amount=total_cost,
         ticker=stock_symbol,
         date=db.DateTime(timezone=True),server_default=func.now()
     )
