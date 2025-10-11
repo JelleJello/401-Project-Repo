@@ -276,8 +276,36 @@ def portfolio():
     user_portfolio = Portfolio.query.filter_by(user_id=current_user.id).first()
     wallet_amount = user_portfolio.walletAmount if user_portfolio else 0
     orderhistory = OrderHistory.query.filter_by(user_id=current_user.id).all()
-    
-    return render_template("portfolio.html", orderhistory=orderhistory)
+
+    return render_template("portfolio.html", orderhistory=orderhistory, wallet_amount=wallet_amount)
+
+@app.route('/addfunds', methods=["GET", "POST"])
+@login_required
+def addfunds():
+    if request.method == "POST":
+        amount_to_add = request.form.get("amount")
+
+        try:
+            amount = float(amount_to_add)
+            if amount <= 0:
+                raise ValueError("Amount must be greater than zero.")
+        except (ValueError, TypeError):
+            flash("Invalid amount entered.", "error")
+            return redirect(url_for("portfolio"))
+
+        portfolio = Portfolio.query.filter_by(user_id=current_user.id).first()
+        if not portfolio:
+            portfolio = Portfolio(user_id=current_user.id, walletAmount=amount)
+            db.session.add(portfolio)
+        else:
+            portfolio.walletAmount += amount
+            portfolio.updatedAt = datetime.utcnow()
+
+        db.session.commit()
+        flash(f"${amount:,.2f} successfully added to your wallet!", "success")
+        return redirect(url_for("portfolio"))
+
+    return render_template("addfunds.html")
 
 @app.route("/market")
 @login_required
