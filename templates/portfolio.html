@@ -2,76 +2,87 @@
 {% block title %}Portfolio{% endblock %}
 {% block content %}
 
-
 <head>
     <title>Asset Allocation</title>
-    <!-- Include Bootstrap CSS from a CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Include Chart.js from a CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <div class="collapse navbar-collapse justify-content-end">
-      <ul class="navbar-nav">
-        {% if current_user.is_authenticated %}
-          <li class="nav-item d-flex align-items-center me-2">
-            <span class="navbar-text">Welcome, {{ current_user.username }}!</span>
-          </li>
-          <li class="nav-item">
-            <a class="btn btn-outline-danger" href="/logout">Logout</a>
-          </li>
-        {% else %}
-          <h1>You are not logged in.</h1>
-        {% endif %}
-      </ul>
-    </div>
-  </div>
-</nav>
-
-    <div class="col-lg-8 mt-5 offset-lg-1">
-        <div class="card mb-4">
-            <div class="card-header">Holdings</div>
-            <div class="card-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Company</th>
-                            <th>Shares</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row">NVIDIA</th>
-                            <td>300</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">AMD</th>
-                            <td>200</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">INTEL</th>
-                            <td>400</td>
-                        </tr>
-                    </tbody>
-                </table>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item d-flex align-items-center me-2">
+                        <span class="navbar-text">Welcome, {{ current_user.username }}!</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-warning" href="/logout">Logout</a>
+                    </li>
+                    {% else %}
+                    <h1>You are not logged in.</h1>
+                    {% endif %}
+                </ul>
             </div>
         </div>
-    </div>
-    <div class="col-lg-7 mt-2 offset-lg-1">
-        <div class="card text-center" style="width: 18rem;">
-            <h5 class="card-header">Wallet</h5>
-            <div class="card-body">
-                <h5 class="card-title">Current Earnings</h5>
-                <p class="card-text">10,500.27</p>
-                <a href="sellingstocks" class="btn btn-primary">Sell Stocks</a>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">Wallet</div>
+                    <div class="card-body">
+                        <h5 class="card-title">Current Earnings</h5>
+                        <p class="card-text">10,500.27</p>
+                        <div class="mt-auto">
+                        <a href="{{ url_for('purchasingstocks')}}" class="btn btn-primary mt-auto">Buy Stocks</a>
+                        <a href="{{ url_for('sellingstocks') }}" class="btn btn-primary mt-auto">Sell Stocks</a>
+                    </div>
+                </div>
             </div>
         </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">My Watchlist</div>
+            <ul classs="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">NVIDIA Corp (NVDA)</h6>
+                        <small>NASDAQ</small>
+                    </div>
+                    <div>
+                        <span class="price-change-positive">+0.66 (0.35%)</span>
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">Advanced Micro Devices Inc (AMD)</h6>
+                        <small>NASDAQ</small>
+                    </div>
+                    <div>
+                        <span class="price-change-positive">+2.22 (1.37%)</span>
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">Intel Corp (INTC)</h6>
+                        <small>NASDAQ</small>
+                    </div>
+                    <div>
+                        <span class="price-change-positive">+2.39 (7.12%)</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
+</div>
+
+
+        
     <div class="container mt-3 pb-5">
         <div class="row">
             <div class="col-lg-6 offset-lg-3">
