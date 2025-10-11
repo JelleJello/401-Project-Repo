@@ -5,65 +5,145 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
 <div class="container mt-5">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <div class="collapse navbar-collapse justify-content-end">
-      <ul class="navbar-nav">
-        {% if current_user.is_authenticated and current_user.role == 'admin' %}
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <div class="collapse navbar-collapse justify-content-end">
+        <ul class="navbar-nav">
+          {% if current_user.is_authenticated and current_user.role == 'admin' %}
           <li class="nav-item d-flex align-items-center me-2">
             <span class="navbar-text">Welcome, Administrator!</span>
           </li>
           <li class="nav-item">
             <a class="btn btn-warning" href="{{ url_for('logout') }}">Logout</a>
           </li>
-        {% else %}
-          <li><h1>You are not logged in.</h1></li>
-        {% endif %}
-      </ul>
+          {% else %}
+          <li>
+            <h1>You are not logged in.</h1>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Admin Dashboard</h1>
+  </div>
+
+  <!-- List of all the stocks in market -->
+    <body>
+      <h1>Stocks in Market List</h1> {% with messages = get_flashed_messages() %} {% if messages %} <ul> {% for message in
+        messages %} <li>{{ message }}</li> {% endfor %} </ul> {% endif %} {% endwith %} <table border="1">
+        <thead>
+          <tr>
+            <th>Company Name</th>
+            <th>Ticker</th>
+            <th>Shares</th>
+            <th>Current Market Price</th>
+          </tr>
+        </thead>
+        <tbody> {% for stock in stocks %} <tr>
+            <td>{{ stock.stockName }}</td>
+            <td>{{ stock.ticker }}</td>
+            <td>{{ stock.quantity }}</td>
+            <td>{{ stock.currentMarketPrice }}</td>
+          </tr> {% endfor %} </tbody>
+      </table>
+    </body>
+
+  <!-- Add Stock Form -->
+  <div class="card shadow">
+    <div class="card-header">
+      <h4 class="mb-0">Add New Stock to Market</h4>
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="stockName" class="form-label">Stock Name</label>
+            <input type="text" class="form-control" id="stockName" name="stockName" required>
+          </div>
+          <div class="col-md-6">
+            <label for="ticker" class="form-label">Ticker Symbol</label>
+            <input type="text" class="form-control" id="ticker" name="ticker" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" required min="1">
+          </div>
+          <div class="col-md-6">
+            <label for="price" class="form-label">Market Price ($)</label>
+            <input type="number" class="form-control" id="price" name="price" step="0.01" required min="0">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success">Add Stock</button>
+      </form>
     </div>
   </div>
-</nav>
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Admin Dashboard</h1>
+  <!-- Edit Stock Form -->
+  <div class="card shadow">
+    <div class="card-header">
+      <h4 class="mb-0">Edit Stocks in Market</h4>
     </div>
-
-    <!-- Admin Actions -->
-    <div class="mb-5 text-center">
-        <a href="{{ url_for('add_stocks') }}" class="btn btn-danger">Add Stocks to Market</a>
-    </div>
-
-    <!-- Add Stock Form -->
-    <div class="card shadow">
-        <div class="card-header">
-            <h4 class="mb-0">Add New Stock to Market</h4>
+    <div class="card-body">
+      <form method="POST">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="stockName" class="form-label">Stock Name</label>
+            <input type="text" class="form-control" id="stockName" name="stockName" required>
+          </div>
+          <div class="col-md-6">
+            <label for="ticker" class="form-label">Ticker Symbol</label>
+            <input type="text" class="form-control" id="ticker" name="ticker" required>
+          </div>
         </div>
-        <div class="card-body">
-            <form method="POST" action="{{ url_for('add_stocks') }}">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="stockName" class="form-label">Stock Name</label>
-                        <input type="text" class="form-control" id="stockName" name="stockName" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="ticker" class="form-label">Ticker Symbol</label>
-                        <input type="text" class="form-control" id="ticker" name="ticker" required>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="quantity" class="form-label">Quantity</label>
-                        <input type="number" class="form-control" id="quantity" name="quantity" required min="1">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="price" class="form-label">Market Price ($)</label>
-                        <input type="number" class="form-control" id="price" name="price" step="0.01" required min="0">
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-success">Add Stock</button>
-            </form>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" required min="1">
+          </div>
+          <div class="col-md-6">
+            <label for="price" class="form-label">Market Price ($)</label>
+            <input type="number" class="form-control" id="price" name="price" step="0.01" required min="0">
+          </div>
         </div>
+        <button type="submit" class="btn btn-success">Edit Stock</button>
+      </form>
     </div>
+  </div>
+  <!-- Delete Stock Form -->
+  <div class="card shadow">
+    <div class="card-header">
+      <h4 class="mb-0">Delete Stock in Market</h4>
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="stockName" class="form-label">Stock Name</label>
+            <input type="text" class="form-control" id="stockName" name="stockName" required>
+          </div>
+          <div class="col-md-6">
+            <label for="ticker" class="form-label">Ticker Symbol</label>
+            <input type="text" class="form-control" id="ticker" name="ticker" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" required min="1">
+          </div>
+          <div class="col-md-6">
+            <label for="price" class="form-label">Market Price ($)</label>
+            <input type="number" class="form-control" id="price" name="price" step="0.01" required min="0">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success">Add Stock</button>
+      </form>
+    </div>
+  </div>
 
 </div>
 

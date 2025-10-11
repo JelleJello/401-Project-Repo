@@ -264,11 +264,11 @@ def change_role(user_id):
 
 # Admin only role
 @app.route('/admin-dashboard')
-@login_required
-@admin_required
+# @login_required
+# @admin_required
 def admin_dashboard():
-    users = User.query.all()  # Get all users for admin to manage
-    return render_template('admin_dashboard.html', users=users)
+    stocks = StockInventory.query.all()  # Get all stocks for admin to manage
+    return render_template('admin_dashboard.html', stocks=stocks)
 
 @app.route("/portfolio")
 @login_required
@@ -384,50 +384,83 @@ def sellingstocks():
 # }
 
 # ADMIN FUNCTIONS
-@app.route("/createstocks", methods=['GET', 'POST'])
+@app.route("/create-stocks", methods=["GET", "POST"])
 @login_required
 @admin_required
 def add_stocks():
     if request.method == 'POST':
-            stockName = request.form['stockName']
-            ticker = request.form['ticker']
-            quantity = int(request.form['quantity'])
-            price = float(request.form['price'])
-            
-            new_stock = StockInventory(
-                stockName=stockName,
-                ticker=ticker,
-                quantity=quantity,
-                currentMarketPrice=price
-            )
+        stockname = request.form['stockName']
+        ticker = request.form['ticker']
+        quantity = request.form['quantity']
+        marketprice = request.form['price']
+        
+        if not stockname or not ticker or not quantity or not marketprice:
+            flash('Make sure all parameters are met', 'error')
+            return redirect(url_for('admin_dashboard'))
+        
+        try:
+            new_stock = StockInventory(stockName=stockname, ticker=ticker, quantity=quantity, currentMarketPrice=marketprice)
             db.session.add(new_stock)
             db.session.commit()
-
-            flash("Stock added to the Market.", "success")
+            flash('Book added successfully!', 'success')
             return redirect(url_for('admin_dashboard'))
+        except Exception as e:
+            flash(f'Error in adding the book: {str(e)}', 'error')
+            return redirect(url_for('admin_dashboard'))
+        
     return render_template('admin_dashboard.html')
 
-@app.route('/editstocks/<int:item_id>', methods=['GET', 'POST'])
+@app.route("/update-stock/<int:id>", methods=["GET", "POST"])
 @login_required
 @admin_required
-def edit_item(StockInventory_id):
-    stock = StockInventory.query.get_or_404(StockInventory_id)
+def update_stock(id):
+    stock = StockInventory.query.get_or_404
+    
     if request.method == 'POST':
-        stock.name = request.form['name']
-        stock.quantity = int(request.form['quantity'])
-        stock.price = float(request.form['price'])
-        db.session.commit()
-        return redirect(url_for('admin_dashboard'))
-    return render_template('edit_item.html', stock=stock)
+        stockname = request.form['stockName']
+        ticker = request.form['ticker']
+        quantity = request.form['quantity']
+        marketprice = request.form['price']
 
-@app.route('/deletestocks/<int:item_id>', methods=['POST'])
+        if not stockname or not ticker or not quantity or not marketprice:
+            flash('Make sure all parameters are met', 'error')
+            return redirect(url_for('admin_dashboard', id=id))
+        
+        try:
+            stock.stockName = stockname
+            stock.ticker = ticker
+            stock.quantity = quantity
+            stock.currentMarketPrice = marketprice
+            db.session.commit()
+            flash('Stock updated successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        except Exception as e:
+            flash(f'Error updating the stock: {str(e)}', 'error')
+            return redirect(url_for('update_stock', id=id))            
+            
+    return render_template("admin_dashboard.html", stock=stock)
+
+
+@app.route("/delete-stock/<int:id>")
 @login_required
 @admin_required
-def delete_item(StockInventory_id):
-    item = StockInventory.query.get_or_404(StockInventory_id)
-    db.session.delete(item)
-    db.session.commit()
-    return redirect(url_for('admin_dashboard'))
+def delete_stock(id):
+    stock = StockInventory.query.get_or_404(id)
+    try:
+        db.session.delete(stock)
+        db.session.commit()
+        flash('Stock deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error with deleting stock: {str(e)}', 'error')
+    return redirect(url_for('get_stocks'))
+
+
+@app.route("/liststocks", methods=["GET"])
+@login_required
+@admin_required
+def get_stocks():
+    stocks = StockInventory.query.all()
+    return render_template("admin_dashboard.html", stocks=stocks)
 
 @admin_required
 def change_stock_market_hours(current_user, exchange: str, open_time: datetime.time, close_time: datetime.time):
