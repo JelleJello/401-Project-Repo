@@ -402,10 +402,10 @@ def add_stocks():
             new_stock = StockInventory(stockName=stockname, ticker=ticker, quantity=quantity, currentMarketPrice=marketprice)
             db.session.add(new_stock)
             db.session.commit()
-            flash('Book added successfully!', 'success')
+            flash('Stock added successfully!', 'success')
             return redirect(url_for('admin_dashboard'))
         except Exception as e:
-            flash(f'Error in adding the book: {str(e)}', 'error')
+            flash(f'Error in adding the Stock: {str(e)}', 'error')
             return redirect(url_for('admin_dashboard'))
         
     return render_template('admin_dashboard.html')
