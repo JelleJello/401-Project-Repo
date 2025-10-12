@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<div class="container mt-5">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                    <li class="nav-item d-flex align-items-center me-2">
+                        <span class="navbar-text">Welcome, Administrator!</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-warning" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <h1>You are not logged in.</h1>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Admin Dashboard: Manage Market Hours</h1>
+    </div>
+
+    
+    <!-- Manage Market Hours Form -->
+    <div class="card shadow">
+        <div class="card-header">
+            <h4 class="mb-0">Change the Hours of the Market</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('change_stock_market_hours') }}">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="day_of_week">Day of Week:</label>
+                        <select id="day_of_week" name="day_of_week" required>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="open_time">Opening Time:</label>
+                        <input type="time" id="open_time" name="open_time" required>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="close_time">Closing Time:</label>
+                        <input type="time" id="close_time" name="close_time" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">Save Market Hours</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

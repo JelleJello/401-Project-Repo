@@ -31,26 +31,27 @@
   </div>
 
   <!-- List of all the stocks in market -->
-    <body>
-      <h1>Stocks in Market List</h1> {% with messages = get_flashed_messages() %} {% if messages %} <ul> {% for message in
-        messages %} <li>{{ message }}</li> {% endfor %} </ul> {% endif %} {% endwith %} <table border="1">
-        <thead>
-          <tr>
-            <th>Company Name</th>
-            <th>Ticker</th>
-            <th>Shares</th>
-            <th>Current Market Price</th>
-          </tr>
-        </thead>
-        <tbody> {% for stock in stocks %} <tr>
-            <td>{{ stock.stockName }}</td>
-            <td>{{ stock.ticker }}</td>
-            <td>{{ stock.quantity }}</td>
-            <td>{{ stock.currentMarketPrice }}</td>
-          </tr> {% endfor %} </tbody>
-      </table>
-    </body>
 
+  <body>
+    <h1>Stocks in Market List</h1> {% with messages = get_flashed_messages() %} {% if messages %} <ul> {% for message in
+      messages %} <li>{{ message }}</li> {% endfor %} </ul> {% endif %} {% endwith %} <table border="1">
+      <thead>
+        <tr>
+          <th>Company Name</th>
+          <th>Ticker</th>
+          <th>Shares</th>
+          <th>Current Market Price</th>
+        </tr>
+      </thead>
+      <tbody> {% for stock in stocks %} <tr>
+          <td>{{ stock.stockName }}</td>
+          <td>{{ stock.ticker }}</td>
+          <td>{{ stock.quantity }}</td>
+          <td>{{ stock.currentMarketPrice }}</td>
+        </tr> {% endfor %} </tbody>
+    </table>
+  </body>
+  <div><a class="btn btn-success" href="url_for('manage_markethours')" role="button">Link</a></div>
   <!-- Add Stock Form -->
   <div class="card shadow">
     <div class="card-header">
