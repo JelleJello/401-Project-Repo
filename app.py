@@ -100,8 +100,8 @@ class WorkingDay(db.Model):
     dayOfWeek = db.Column(db.Integer)  # 0=Monday, 6=Sunday
     startTime = db.Column(db.Integer)
     endTime = db.Column(db.Integer)
-    createdAt = db.Column(db.Integer)
-    updatedAt = db.Column(db.Integer)
+    createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
+    updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'), unique=True)
 
 # class Exception (Natalie)
@@ -110,8 +110,8 @@ class Exception(db.Model):
     exceptionId = db.Column(db.Integer, primary_key=True)
     reason = db.Column(db.String(255))
     holidayDate = db.Column(db.Date)
-    createdAt = db.Column(db.Integer)
-    updatedAt = db.Column(db.Integer)
+    createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
+    updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'), unique=True)
 
 # Create tables
