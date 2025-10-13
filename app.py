@@ -367,6 +367,7 @@ def purchasingstocks():
         return redirect(url_for('purchasingstocks'))
 
 
+# selling stocks adds to wallet
 @app.route('/sellingstocks', methods=["GET", "POST"])
 @login_required
 def sellingstocks():
@@ -376,7 +377,6 @@ def sellingstocks():
     stock_symbol = request.form.get('symbol')
     amount_stock = request.form.get('quantity')
 
-    # Validate inputs
     if not stock_symbol or not amount_stock:
         flash("Order couldn't go through: Missing information.", 'sell-error')
         return redirect(url_for('sellingstocks'))
@@ -387,29 +387,33 @@ def sellingstocks():
             raise ValueError
     except ValueError:
         flash("Order couldn't go through: Invalid amount.", 'sell-error')
-        return redirect(url_for('portfolio'))
+        return redirect(url_for('sellingstocks'))
 
-    # getting stock price from stock in db
-    stock_price = StockInventory.query.filter_by(currentMarketPrice='symbol').first()
+    stock = StockInventory.query.filter_by(ticker=stock_symbol).first()
+    if not stock:
+        flash("Stock not found in inventory.", 'sell-error')
+        return redirect(url_for('sellingstocks'))
+
+    stock_price = float(stock.currentMarketPrice)
     total_cost = stock_price * amount
 
     new_order = OrderHistory(
-        order_type='sell',
-        quantity=amount,
-        total_amount=total_cost,
+        orderType='sell',
+        orderQuantity=amount,
+        totalOrderAmount=total_cost,
         ticker=stock_symbol,
-        date=db.DateTime(timezone=True),server_default=func.now()
+        user_id=current_user.id
     )
 
     try:
         db.session.add(new_order)
         db.session.commit()
-        flash(f"Successfully sold {amount} shares of {stock_symbol}.")
+        flash(f"Successfully sold {amount} shares of {stock_symbol}.", 'success')
         return redirect(url_for('portfolio'))
-    except:
+    except Exception as e:
         db.session.rollback()
-        flash("Order couldn't go through.", 'sell-error')
-        return redirect(url_for('sellingstocks'))
+        flash("Order couldn't go through. Please try again.", 'sell-error')
+        return redirect(url_for('purchasingstocks'))
     
 # MARKET_HOURS = {
     # "NYSE": {
