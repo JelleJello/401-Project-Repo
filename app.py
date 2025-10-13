@@ -392,7 +392,6 @@ def purchasingstocks():
         print(f"DB error during stock purchase: {e}")
         return redirect(url_for('purchasingstocks'))
 
-# selling stocks adds to wallet
 @app.route('/sellingstocks', methods=["GET", "POST"])
 @login_required
 def sellingstocks():
@@ -418,8 +417,25 @@ def sellingstocks():
     if not stock:
         flash("Stock not found in inventory.", 'sell-error')
         return redirect(url_for('sellingstocks'))
-    
-    owned_shares = get_user_stock_quantity(current_user.id, stock_symbol)
+
+    buys = db.session.query(
+        func.sum(OrderHistory.orderQuantity)
+    ).filter_by(
+        user_id=current_user.id,
+        ticker=stock_symbol,
+        orderType='buy'
+    ).scalar() or 0
+
+    sells = db.session.query(
+        func.sum(OrderHistory.orderQuantity)
+    ).filter_by(
+        user_id=current_user.id,
+        ticker=stock_symbol,
+        orderType='sell'
+    ).scalar() or 0
+
+    owned_shares = buys - sells
+
     if amount > owned_shares:
         flash(f"You don't own {amount} shares of {stock_symbol}.", 'sell-error')
         return redirect(url_for('sellingstocks'))
@@ -435,6 +451,8 @@ def sellingstocks():
     user_portfolio.walletAmount += total_cost
     user_portfolio.updatedAt = datetime.utcnow()
 
+    stock.quantity = (stock.quantity or 0) + amount
+
     new_order = OrderHistory(
         orderType='sell',
         orderQuantity=amount,
@@ -448,11 +466,10 @@ def sellingstocks():
         db.session.commit()
         flash(f"Successfully sold {amount} shares of {stock_symbol}.", 'success')
         return redirect(url_for('portfolio'))
-    except builtins.Exception as e:
+    except Exception:
         db.session.rollback()
         flash("Order couldn't go through. Please try again.", 'sell-error')
         return redirect(url_for('sellingstocks'))
-    
 
 # ADMIN FUNCTIONS
 @app.route("/create-stocks", methods=["GET", "POST"])
