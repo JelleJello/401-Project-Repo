@@ -7,6 +7,7 @@ from flask_bcrypt import Bcrypt
 from functools import wraps
 from datetime import datetime, date
 import holidays
+import builtins
 
 from sqlalchemy import func
 # import pandas as pd
@@ -67,7 +68,7 @@ class OrderHistory(db.Model):
     orderType = db.Column(db.String(10), nullable=False)
     orderQuantity = db.Column(db.Integer, nullable=False)
     totalOrderAmount = db.Column(db.Float, nullable=False)
-    ticker = db.Column(db.String(10), unique=True, nullable=False)
+    ticker = db.Column(db.String(10), nullable=False)
     createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'))
@@ -100,8 +101,8 @@ class WorkingDay(db.Model):
     dayOfWeek = db.Column(db.Integer)  # 0=Monday, 6=Sunday
     startTime = db.Column(db.Integer)
     endTime = db.Column(db.Integer)
-    createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
-    updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    createdAt = db.Column(db.Integer)
+    updatedAt = db.Column(db.Integer)
     admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'), unique=True)
 
 # class Exception (Natalie)
@@ -110,8 +111,8 @@ class Exception(db.Model):
     exceptionId = db.Column(db.Integer, primary_key=True)
     reason = db.Column(db.String(255))
     holidayDate = db.Column(db.Date)
-    createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
-    updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    createdAt = db.Column(db.Integer)
+    updatedAt = db.Column(db.Integer)
     admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'), unique=True)
 
 # Create tables
@@ -340,13 +341,37 @@ def purchasingstocks():
         flash("Order couldn't go through: Invalid amount.", 'buy-error')
         return redirect(url_for('purchasingstocks'))
 
+    stock_symbol = stock_symbol.upper()
     stock = StockInventory.query.filter_by(ticker=stock_symbol).first()
+
     if not stock:
         flash("Stock not found in inventory.", 'buy-error')
         return redirect(url_for('purchasingstocks'))
 
+    if stock.currentMarketPrice is None:
+        flash("Stock price is unavailable.", "buy-error")
+        return redirect(url_for('purchasingstocks'))
+
+    if stock.quantity < amount:
+        flash("Not enough stock available to purchase.", "buy-error")
+        return redirect(url_for("purchasingstocks"))
+
     stock_price = float(stock.currentMarketPrice)
     total_cost = stock_price * amount
+
+    user_portfolio = Portfolio.query.filter_by(user_id=current_user.id).first()
+    if not user_portfolio:
+        flash("Portfolio not found. Please add funds first.", "buy-error")
+        return redirect(url_for('purchasingstocks'))
+
+    if user_portfolio.walletAmount < total_cost:
+        flash("Insufficient funds in wallet.", 'buy-error')
+        return redirect(url_for('purchasingstocks'))
+
+    user_portfolio.walletAmount -= total_cost
+    user_portfolio.updatedAt = datetime.utcnow()
+
+    stock.quantity -= amount
 
     new_order = OrderHistory(
         orderType='buy',
@@ -361,11 +386,11 @@ def purchasingstocks():
         db.session.commit()
         flash(f"Successfully bought {amount} shares of {stock_symbol}.", 'success')
         return redirect(url_for('portfolio'))
-    except Exception as e:
+    except builtins.Exception as e:
         db.session.rollback()
-        flash("Order couldn't go through. Please try again.", 'buy-error')
+        flash(f"Order couldn't go through: {str(e)}", 'buy-error')
+        print(f"DB error during stock purchase: {e}")
         return redirect(url_for('purchasingstocks'))
-
 
 # selling stocks adds to wallet
 @app.route('/sellingstocks', methods=["GET", "POST"])
@@ -393,9 +418,22 @@ def sellingstocks():
     if not stock:
         flash("Stock not found in inventory.", 'sell-error')
         return redirect(url_for('sellingstocks'))
+    
+    owned_shares = get_user_stock_quantity(current_user.id, stock_symbol)
+    if amount > owned_shares:
+        flash(f"You don't own {amount} shares of {stock_symbol}.", 'sell-error')
+        return redirect(url_for('sellingstocks'))
 
     stock_price = float(stock.currentMarketPrice)
     total_cost = stock_price * amount
+
+    user_portfolio = Portfolio.query.filter_by(user_id=current_user.id).first()
+    if not user_portfolio:
+        user_portfolio = Portfolio(user_id=current_user.id, walletAmount=0)
+        db.session.add(user_portfolio)
+
+    user_portfolio.walletAmount += total_cost
+    user_portfolio.updatedAt = datetime.utcnow()
 
     new_order = OrderHistory(
         orderType='sell',
@@ -410,10 +448,10 @@ def sellingstocks():
         db.session.commit()
         flash(f"Successfully sold {amount} shares of {stock_symbol}.", 'success')
         return redirect(url_for('portfolio'))
-    except Exception as e:
+    except builtins.Exception as e:
         db.session.rollback()
         flash("Order couldn't go through. Please try again.", 'sell-error')
-        return redirect(url_for('purchasingstocks'))
+        return redirect(url_for('sellingstocks'))
     
 
 # ADMIN FUNCTIONS
