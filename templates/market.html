@@ -37,7 +37,7 @@
             <span class="navbar-text">Welcome, {{ current_user.username }}!</span>
           </li>
           <li class="nav-item">
-            <a class="btn btn-outline-danger" href="/logout">Logout</a>
+            <a class="btn btn-warning" href="{{ url_for('logout') }}">Logout</a>
           </li>
         {% else %}
           <h1>You are not logged in.</h1>
@@ -56,7 +56,7 @@
 </body>
 <div class="row mb-4">
     <div class="col-12">
-        <div class="bg-light p-2 rounded overflow-hidden">
+        <div class="p-2 rounded overflow-hidden">
             <marquee class="stock-ticker">
                 <span class="text-secondary">S&P 500: <span class="price-change-positive">5200.12 (+0.5%)</span></span>
                 <span class="text-secondary">NASDAQ: <span class="price-change-positive">16500.87 (+1.2%)</span></span>
