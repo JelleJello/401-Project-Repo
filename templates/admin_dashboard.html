@@ -48,17 +48,20 @@
           <td>{{ stock.ticker }}</td>
           <td>{{ stock.quantity }}</td>
           <td>{{ stock.currentMarketPrice }}</td>
+          <td> <a href="{{ url_for('delete_stock', id=stock.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a> </td>
         </tr> {% endfor %} </tbody>
     </table>
   </body>
-  <div><a class="btn btn-success" href="url_for('manage_markethours')" role="button">Link</a></div>
+  <div>
+    <a class="btn btn-success" href="{{ url_for('manage_markethours') }}" role="button">Manage Market Hours</a>
+  </div>
   <!-- Add Stock Form -->
   <div class="card shadow">
     <div class="card-header">
       <h4 class="mb-0">Add New Stock to Market</h4>
     </div>
     <div class="card-body">
-      <form method="POST" action="{{ url_for('add_stocks') }}">
+      <form method="POST">
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="stockName" class="form-label">Stock Name</label>
@@ -89,63 +92,31 @@
       <h4 class="mb-0">Edit Stocks in Market</h4>
     </div>
     <div class="card-body">
-      <form method="POST" action="{{ url_for('update_stock') }}">
+      <form method="POST">
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="stockName" class="form-label">Stock Name</label>
-            <input type="text" class="form-control" id="stockName" name="stockName" required>
+            <input type="text" class="form-control" id="stockName" name="stockName" value="{{ stock.stockName }}" required>
           </div>
           <div class="col-md-6">
             <label for="ticker" class="form-label">Ticker Symbol</label>
-            <input type="text" class="form-control" id="ticker" name="ticker" required>
+            <input type="text" class="form-control" id="ticker" name="ticker" value="{{ stock.ticker }}" required>
           </div>
         </div>
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="quantity" class="form-label">Quantity</label>
-            <input type="number" class="form-control" id="quantity" name="quantity" required min="1">
+            <input type="number" class="form-control" id="quantity" name="quantity" value="{{ stock.quantity }}" required min="1">
           </div>
           <div class="col-md-6">
             <label for="price" class="form-label">Market Price ($)</label>
-            <input type="number" class="form-control" id="price" name="price" step="0.01" required min="0">
+            <input type="number" class="form-control" id="price" name="price" step="0.01" value="{{ stock.currentMarketPrice }}" required min="0">
           </div>
         </div>
         <button type="submit" class="btn btn-success">Edit Stock</button>
       </form>
     </div>
   </div>
-  <!-- Delete Stock Form -->
-  <div class="card shadow">
-    <div class="card-header">
-      <h4 class="mb-0">Delete Stock in Market</h4>
-    </div>
-    <div class="card-body">
-      <form method="POST" action="{{ url_for('delete_stock') }}">
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label for="stockName" class="form-label">Stock Name</label>
-            <input type="text" class="form-control" id="stockName" name="stockName" required>
-          </div>
-          <div class="col-md-6">
-            <label for="ticker" class="form-label">Ticker Symbol</label>
-            <input type="text" class="form-control" id="ticker" name="ticker" required>
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label for="quantity" class="form-label">Quantity</label>
-            <input type="number" class="form-control" id="quantity" name="quantity" required min="1">
-          </div>
-          <div class="col-md-6">
-            <label for="price" class="form-label">Market Price ($)</label>
-            <input type="number" class="form-control" id="price" name="price" step="0.01" required min="0">
-          </div>
-        </div>
-        <button type="submit" class="btn btn-success">Add Stock</button>
-      </form>
-    </div>
-  </div>
-
 </div>
 
 

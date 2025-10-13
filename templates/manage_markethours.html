@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}Market Hours{% endblock %}
 {% block content %}
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -30,42 +30,61 @@
         <h1>Admin Dashboard: Manage Market Hours</h1>
     </div>
 
-    
+
     <!-- Manage Market Hours Form -->
     <div class="card shadow">
         <div class="card-header">
             <h4 class="mb-0">Change the Hours of the Market</h4>
         </div>
         <div class="card-body">
-            <form method="POST" action="{{ url_for('change_stock_market_hours') }}">
+            <form method="POST">
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="day_of_week">Day of Week:</label>
-                        <select id="day_of_week" name="day_of_week" required>
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                            <option value="Saturday">Saturday</option>
-                            <option value="Sunday">Sunday</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="open_time">Opening Time:</label>
-                        <input type="time" id="open_time" name="open_time" required>
+                        <label for="dayOfWeek">Day of Week (0=Monday, 6=Sunday):</label>
+                        <input type="number" id="dayOfWeek" name="dayOfWeek" min="0" max="6" required>
                     </div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="close_time">Closing Time:</label>
-                        <input type="time" id="close_time" name="close_time" required>
+                        <label for="startTime">Start Time:</label>
+                        <input type="text" name="startTime" placeholder="HH:MM AM/PM" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success">Save Market Hours</button>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="endTime">End Time:</label>
+                        <input type="text" name="endTime" placeholder="HH:MM AM/PM" required>
+                    </div>
+                </div>
+                <button type="submit">Update Working Day</button>
             </form>
         </div>
     </div>
+    <!-- Adding a Holiday -->
+    <div class="card shadow">
+        <div class="card-header">
+            <h4 class="mb-0">Holiday</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="holidayDate">Holiday Date:</label>
+                        <input type="date" id="holidayDate" name="holidayDate" required>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="reason">Reason for Closure:</label>
+                        <input type="text" id="reason" name="reason" required>
+                    </div>
+                </div>
+                <button type="submit">Add Holiday</button>
+        </div>
+
+        </form>
+    </div>
+</div>
 </div>
 
 

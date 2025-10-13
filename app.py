@@ -264,11 +264,11 @@ def change_role(user_id):
 
 # Admin only role
 @app.route('/admin-dashboard')
-# @login_required
-# @admin_required
+@login_required
+@admin_required
 def admin_dashboard():
-    stocks = StockInventory.query.all()  # Get all stocks for admin to manage
-    return render_template('admin_dashboard.html', stocks=stocks)
+    stock = StockInventory.query.all()  # Get all stocks for admin to manage
+    return render_template('admin_dashboard.html', stock=stock)
 
 @app.route("/portfolio")
 @login_required
@@ -415,13 +415,6 @@ def sellingstocks():
         flash("Order couldn't go through. Please try again.", 'sell-error')
         return redirect(url_for('purchasingstocks'))
     
-# MARKET_HOURS = {
-    # "NYSE": {
-        # "open": datetime.time(9, 30),
-        # "close": datetime.time(16, 00),
-        # "timezone": "America/New_York",
-    # }
-# }
 
 # ADMIN FUNCTIONS
 @app.route("/create-stocks", methods=["GET", "POST"])
@@ -450,11 +443,11 @@ def add_stocks():
         
     return render_template('admin_dashboard.html')
 
-@app.route("/update-stock/<int:id>", methods=["GET", "POST"])
+@app.route("/update-stock/", methods=["GET", "POST"])
 @login_required
 @admin_required
 def update_stock(id):
-    stock = StockInventory.query.get_or_404
+    stock = StockInventory.query.get_or_404(id)
     
     if request.method == 'POST':
         stockname = request.form['stockName']
@@ -502,66 +495,43 @@ def get_stocks():
     stocks = StockInventory.query.all()
     return render_template("admin_dashboard.html", stocks=stocks)
 
+@app.route("/manage_markethours", methods=['GET', 'POST'])
+@login_required
 @admin_required
-def change_stock_market_hours(current_user, exchange: str, open_time: datetime.time, close_time: datetime.time):
-    """
-    Changes the opening and closing hours for a specified stock exchange.
-    This function can only be called by an admin, enforced by the decorator.
-    """
-    working_day = WorkingDay.query.filter_by(dayOfWeek=weekday).first()
+def manage_markethours():
+    if request.method == 'POST':
+        day_of_week = int(request.form.get('dayOfWeek'))  # 0=Monday, 6=Sunday
+        start_time = int(request.form.get('startTime'))  # in minutes
+        end_time = int(request.form.get('endTime'))      # in minutes
 
-    if working_day:
-        print(f"⚙️ Changing hours for {exchange} from {working_day.open_time} to {open_time}...")
-        working_day.open_time = open_time
-        working_day.close_time = close_time
-    else:
-        # If not found, create a new entry
-        print(f"➕ Creating new working day entry for {exchange}.")
-        working_day = WorkingDay(
-            exchange=exchange,
-            open_time=open_time,
-            close_time=close_time,
-            timezone="America/New_York"  # Or make this dynamic
-        )
-        db.session.add(working_day)
+        working_day = WorkingDay.query.filter_by(dayOfWeek=day_of_week).first()
+        if not working_day:
+            working_day = WorkingDay(dayOfWeek=day_of_week)
+            db.session.add(working_day)
 
-    db.session.commit()
-    print(f"✅ Successfully updated {exchange} hours to Open: {open_time}, Close: {close_time}")
-    return {
-        "exchange": exchange,
-        "open": open_time,
-        "close": close_time
-    }
+        working_day.startTime = start_time
+        working_day.endTime = end_time
+        db.session.commit()
+        return redirect(url_for('manage_markethours'))
+
+    return render_template('manage_markethours.html')
     
-@admin_required
-def open_season():
-    today = date.today()
-    
-    # Check for weekends (Saturday or Sunday)
-    # The weekday() method returns Monday as 0 and Sunday as 6.
-    if Exception.query.filter_by(date=today).first():
-        return False
+@app.route('/add_holiday', methods=['GET', 'POST'])
+def add_holiday():
+    if request.method == 'POST':
+        holiday_date_str = request.form.get('holidayDate')  # format: 'YYYY-MM-DD'
+        reason = request.form.get('reason')
+        holiday_date = date.fromisoformat(holiday_date_str)
 
-    # Check for U.S. federal holidays
-    us_holidays = holidays.country_holidays('US')
-    if today in us_holidays:
-        return False
+        # Check if already exists
+        existing_exception = Exception.query.filter_by(holidayDate=holiday_date).first()
+        if not existing_exception:
+            new_exception = Exception(holidayDate=holiday_date, reason=reason)
+            db.session.add(new_exception)
+            db.session.commit()
+        return redirect(url_for('manage_markethours'))
 
-    # If it's not a weekend and not a holiday, the market is open
-    return True
-
-@app.route('/market-status', methods=['GET'])
-def market_status():
-    if open_season():
-        return jsonify({
-            "status": "Open",
-            "message": "The market is currently open for business."
-        })
-    else:
-        return jsonify({
-            "status": "Closed",
-            "message": "The market is currently closed. Please check back during standard business hours."
-        })
+    return render_template('manage_markethours.html')
 
 
 if __name__ == "__main__":
