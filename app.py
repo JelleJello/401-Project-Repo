@@ -8,6 +8,9 @@ from functools import wraps
 from datetime import datetime, date
 import holidays
 import builtins
+import random
+import math
+import time
 
 from sqlalchemy import func
 # import pandas as pd
@@ -130,6 +133,16 @@ with app.app_context():
         db.session.add(stock3)
         db.session.add(stock4)
         db.session.commit()
+
+# Random Price Generator
+def generate_random_price(interval_seconds=30):
+    """Generates a random price within a specified range."""
+    # min_price = 5.00
+    # max_price = 300.00
+    while True:
+        StockInventory.currentMarketPrice = float(math.rand(0, 200))
+        time.sleep(interval_seconds)
+        return StockInventory.currentMarketPrice
 
 # User or Admin authentication check
 def admin_required(f):
