@@ -104,8 +104,8 @@ class WorkingDay(db.Model):
     dayOfWeek = db.Column(db.Integer)  # 0=Monday, 6=Sunday
     startTime = db.Column(db.Integer)
     endTime = db.Column(db.Integer)
-    createdAt = db.Column(db.Integer)
-    updatedAt = db.Column(db.Integer)
+    createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
+    updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'), unique=True)
 
 # class Exception (Natalie)
@@ -114,8 +114,8 @@ class Exception(db.Model):
     exceptionId = db.Column(db.Integer, primary_key=True)
     reason = db.Column(db.String(255))
     holidayDate = db.Column(db.Date)
-    createdAt = db.Column(db.Integer)
-    updatedAt = db.Column(db.Integer)
+    createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
+    updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'), unique=True)
 
 # Create tables
@@ -563,12 +563,30 @@ def get_stocks():
     stocks = StockInventory.query.all()
     return render_template("admin_dashboard.html", stocks=stocks)
 
+DAY_NAME_TO_INT = {
+    'Monday': 0,
+    'Tuesday': 1,
+    'Wednesday': 2,
+    'Thursday': 3,
+    'Friday': 4,
+    'Saturday': 5,
+    'Sunday': 6
+}
+
 @app.route("/manage_markethours", methods=['GET', 'POST'])
 @login_required
 @admin_required
 def manage_markethours():
     if request.method == 'POST':
-        day_of_week = int(request.form.get('dayOfWeek'))  # 0=Monday, 6=Sunday
+        # Get day of the week as a string from form input
+        day_of_week_str = request.form.get('dayOfWeek')  # e.g., "Monday"
+        # day_of_week_str_cap = day_of_week_str.capitalize()  # Ensure proper capitalization
+
+        # Convert day string to integer
+        day_of_week = DAY_NAME_TO_INT.get(day_of_week_str)
+        if day_of_week is None:
+            flash('Invalid day of the week.')
+            return redirect(url_for('manage_markethours'))
 
         # Get start and end times as strings in 12-hour format
         start_time_str = request.form.get('startTime')  # e.g., "02:30 PM"
