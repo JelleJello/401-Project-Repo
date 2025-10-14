@@ -569,17 +569,35 @@ def get_stocks():
 def manage_markethours():
     if request.method == 'POST':
         day_of_week = int(request.form.get('dayOfWeek'))  # 0=Monday, 6=Sunday
-        start_time = int(request.form.get('startTime'))  # in minutes
-        end_time = int(request.form.get('endTime'))      # in minutes
 
+        # Get start and end times as strings in 12-hour format
+        start_time_str = request.form.get('startTime')  # e.g., "02:30 PM"
+        end_time_str = request.form.get('endTime')      # e.g., "05:45 AM"
+
+        # Parse 12-hour format time strings into datetime objects
+        try:
+            start_time_dt = datetime.strptime(start_time_str, '%I:%M %p')
+            end_time_dt = datetime.strptime(end_time_str, '%I:%M %p')
+
+            # Convert to minutes since midnight
+            start_time_minutes = start_time_dt.hour * 60 + start_time_dt.minute
+            end_time_minutes = end_time_dt.hour * 60 + end_time_dt.minute
+        except ValueError:
+            # Handle invalid input format
+            flash('Invalid time format. Please use HH:MM AM/PM format.')
+            return redirect(url_for('manage_markethours'))
+
+        # Query or create working day
         working_day = WorkingDay.query.filter_by(dayOfWeek=day_of_week).first()
         if not working_day:
             working_day = WorkingDay(dayOfWeek=day_of_week)
             db.session.add(working_day)
 
-        working_day.startTime = start_time
-        working_day.endTime = end_time
+        # Save minutes
+        working_day.startTime = start_time_minutes
+        working_day.endTime = end_time_minutes
         db.session.commit()
+
         return redirect(url_for('manage_markethours'))
 
     return render_template('manage_markethours.html')
