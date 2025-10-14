@@ -6,6 +6,8 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask_bcrypt import Bcrypt
 from functools import wraps
 from datetime import datetime, date
+from decimal import Decimal
+from faker import Faker
 import holidays
 import builtins
 import random
@@ -135,14 +137,44 @@ with app.app_context():
         db.session.commit()
 
 # Random Price Generator
-def generate_random_price(interval_seconds=30):
-    """Generates a random price within a specified range."""
-    # min_price = 5.00
-    # max_price = 300.00
-    while True:
-        StockInventory.currentMarketPrice = float(math.rand(0, 200))
-        time.sleep(interval_seconds)
-        return StockInventory.currentMarketPrice
+# def generate_random_price(interval_seconds=30):
+#     """Generates a random price within a specified range."""
+#     # min_price = 5.00
+#     # max_price = 300.00
+#     while True:
+#         StockInventory.currentMarketPrice = float(math.rand(0, 200))
+#         time.sleep(interval_seconds)
+#         return StockInventory.currentMarketPrice
+
+# Random Price Generator
+def generate_random_price(min_price=1.00, max_price=1000.00):
+    """Generates a random price and returns it as a Decimal object."""
+    random_float = random.uniform(min_price, max_price)
+    return Decimal(str(round(random_float, 2)))
+
+# Updating stock price
+def update_stock_price(ticker):
+    """Finds a stock by its ticker and updates its market price."""
+    with app.app_context():
+        stock = StockInventory.query.filter_by(ticker=ticker).first()
+        if stock:
+            new_price = generate_random_price()
+            stock.currentMarketPrice = new_price
+            stock.updatedAt = datetime.utcnow()
+            db.session.commit()
+
+# Update all stock prices
+def update_all_stock_prices():
+    """Updates the market price for all stocks in the database."""
+    with app.app_context():
+        all_stocks = StockInventory.query.all()
+        for stock in all_stocks:
+            new_price = generate_random_price()
+            stock.currentMarketPrice = new_price
+            stock.updatedAt = datetime.utcnow()
+            # print(f"Updated price for {stock.stockName} ({stock.ticker}) to {new_price}")
+        db.session.commit()
+
 
 # User or Admin authentication check
 def admin_required(f):
