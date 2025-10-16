@@ -1,75 +1,62 @@
 {% extends "base.html" %}
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}Edit Stock{% endblock %}
+
 {% block content %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-<body>
-    <div class="container mt-5">
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid">
-                <div class="collapse navbar-collapse justify-content-end">
-                    <ul class="navbar-nav">
-                        {% if current_user.is_authenticated and current_user.role == 'admin' %}
-                        <li class="nav-item d-flex align-items-center me-2">
-                            <span class="navbar-text">Welcome, Administrator!</span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-warning" href="{{ url_for('logout') }}">Logout</a>
-                        </li>
-                        {% else %}
-                        <li>
-                            <h1>You are not logged in.</h1>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-        </nav>
-
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Edit Stocks Dashboard</h1>
-        </div>
-        <!-- Edit Stock Form -->
-        <div class="card shadow">
-            <div class="card-header">
-                <h4 class="mb-0">Edit Stocks in Market</h4>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="stockName" class="form-label">Stock Name</label>
-                            <input type="text" class="form-control" id="stockName" name="stockName"
-                                value="{{ stock.stockName }}" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="ticker" class="form-label">Ticker Symbol</label>
-                            <input type="text" class="form-control" id="ticker" name="ticker" value="{{ stock.ticker }}"
-                                required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="quantity" class="form-label">Quantity</label>
-                            <input type="number" class="form-control" id="quantity" name="quantity"
-                                value="{{ stock.quantity }}" required min="1">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="price" class="form-label">Market Price ($)</label>
-                            <input type="number" class="form-control" id="price" name="price" step="0.01"
-                                value="{{ stock.currentMarketPrice }}" required min="0">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-success">Edit Stock</button>
-                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
-                </form>
-            </div>
-        </div>
+<div class="container mt-5">
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <div class="collapse navbar-collapse justify-content-end">
+        <ul class="navbar-nav">
+          {% if current_user.is_authenticated and current_user.role == 'admin' %}
+          <li class="nav-item d-flex align-items-center me-2">
+            <span class="navbar-text">Welcome, Administrator!</span>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-warning" href="{{ url_for('logout') }}">Logout</a>
+          </li>
+          {% else %}
+          <li>
+            <h1>You are not logged in.</h1>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
     </div>
-</body>
+  </nav>
 
+  <h1>Edit Stock</h1>
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
+  <form method="POST">
+    <div class="mb-3">
+      <label for="stockName" class="form-label">Stock Name</label>
+      <input type="text" class="form-control" id="stockName" name="stockName" value="{{ stock.stockName }}" required>
+    </div>
+    <div class="mb-3">
+      <label for="ticker" class="form-label">Ticker Symbol</label>
+      <input type="text" class="form-control" id="ticker" name="ticker" value="{{ stock.ticker }}" required>
+    </div>
+    <div class="mb-3">
+      <label for="quantity" class="form-label">Available Shares</label>
+      <input type="number" class="form-control" id="quantity" name="quantity" value="{{ stock.quantity }}" required>
+    </div>
+    <div class="mb-3">
+      <label for="price" class="form-label">Current Market Price</label>
+      <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ stock.currentMarketPrice }}" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Update Stock</button>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
 {% endblock %}
