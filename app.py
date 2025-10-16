@@ -528,6 +528,13 @@ def price_gen():
     # price should be saved per purchase
         # eg. user buys 2 TSLA stocks for 45.87 then 1 minute later they will buy TSLA for 23.56
     return render_template('market.html')
+# Random price generator function
+# Links to front end, not back end
+# Remove option to add price for stocks in admin function
+# Every time a user buys, the price saves, otherwise it randomly generates a number
+# Updates to currentMarketPrice
+# Test market hours functions to see if it locks out ppl after certain hours
+# Go back and look at business case to check what we have done so far, make check marks
 
 # ADMIN FUNCTIONS
 @app.route("/create-stocks", methods=["GET", "POST"])
