@@ -51,10 +51,6 @@
             <label for="quantity" class="form-label">Quantity</label>
             <input type="number" class="form-control" id="quantity" name="quantity" required min="1">
           </div>
-          <div class="col-md-6">
-            <label for="price" class="form-label">Market Price ($)</label>
-            <input type="number" class="form-control" id="price" name="price" step="0.01" required min="0">
-          </div>
         </div>
         <button type="submit" class="btn btn-success">Add Stock</button>
         <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>

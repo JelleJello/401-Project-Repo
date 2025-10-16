@@ -7,7 +7,7 @@ from flask_bcrypt import Bcrypt
 from functools import wraps
 from datetime import datetime, date
 from decimal import Decimal
-from faker import Faker
+# from faker import Faker
 import holidays
 import builtins
 import random
@@ -515,6 +515,19 @@ def sellingstocks():
         db.session.rollback()
         flash("Order couldn't go through. Please try again.", 'sell-error')
         return redirect(url_for('sellingstocks'))
+    
+
+# Random Price Generator
+@app.route("/random_pricegen", methods=["POST"])
+@login_required
+@admin_required
+def price_gen():
+    # code to generate random price per stock
+    # the price should be given to "currentMarketPrice" attribute
+    # the price should update every 30 seconds
+    # price should be saved per purchase
+        # eg. user buys 2 TSLA stocks for 45.87 then 1 minute later they will buy TSLA for 23.56
+    return render_template('market.html')
 
 # ADMIN FUNCTIONS
 @app.route("/create-stocks", methods=["GET", "POST"])
