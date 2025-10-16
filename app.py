@@ -529,7 +529,7 @@ def add_stocks():
         
         if not stockname or not ticker or not quantity or not marketprice:
             flash('Make sure all parameters are met', 'error')
-            return redirect(url_for('admin_dashboard'))
+            return redirect(url_for('add_stock'))
         
         try:
             new_stock = StockInventory(stockName=stockname, ticker=ticker, quantity=quantity, currentMarketPrice=marketprice)
@@ -539,9 +539,9 @@ def add_stocks():
             return redirect(url_for('admin_dashboard'))
         except Exception as e:
             flash(f'Error in adding the Stock: {str(e)}', 'error')
-            return redirect(url_for('admin_dashboard'))
+            return redirect(url_for('add_stock'))
         
-    return render_template('admin_dashboard.html')
+    return render_template('add_stock.html')
 
 @app.route("/update-stock/", methods=["GET", "POST"])
 @login_required
@@ -557,7 +557,7 @@ def update_stock(id):
 
         if not stockname or not ticker or not quantity or not marketprice:
             flash('Make sure all parameters are met', 'error')
-            return redirect(url_for('admin_dashboard', id=id))
+            return redirect(url_for('edit_stock', id=id))
         
         try:
             stock.stockName = stockname
@@ -569,9 +569,9 @@ def update_stock(id):
             return redirect(url_for('admin_dashboard'))
         except Exception as e:
             flash(f'Error updating the stock: {str(e)}', 'error')
-            return redirect(url_for('update_stock', id=id))            
+            return redirect(url_for('edit_stock', id=id))            
             
-    return render_template("admin_dashboard.html", stock=stock)
+    return render_template("edit_stock.html", stock=stock)
 
 
 @app.route("/delete-stock/<int:id>")
@@ -585,15 +585,15 @@ def delete_stock(id):
         flash('Stock deleted successfully!', 'success')
     except Exception as e:
         flash(f'Error with deleting stock: {str(e)}', 'error')
-    return redirect(url_for('get_stocks'))
+    return redirect(url_for('admin_dashboard'))
 
 
 @app.route("/liststocks", methods=["GET"])
 @login_required
 @admin_required
-def get_stocks():
-    stocks = StockInventory.query.all()
-    return render_template("admin_dashboard.html", stocks=stocks)
+def view_stocks(id):
+    stock = StockInventory.query.get_or_404(id)
+    return render_template("admin_dashboard.html", stock=stock)
 
 DAY_NAME_TO_INT = {
     'Monday': 0,
