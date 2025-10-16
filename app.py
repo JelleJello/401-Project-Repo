@@ -533,7 +533,6 @@ def price_gen():
 # Remove option to add price for stocks in admin function
 # Every time a user buys, the price saves, otherwise it randomly generates a number
 # Updates to currentMarketPrice
-# Test market hours functions to see if it locks out ppl after certain hours
 # Go back and look at business case to check what we have done so far, make check marks
 
 # ADMIN FUNCTIONS
@@ -625,6 +624,8 @@ DAY_NAME_TO_INT = {
     'Sunday': 6
 }
 
+# Distinction between dates and days for the market hours, days are Monday-Friday, dates are for holidays (can hard code), changing the time is separate
+# Test market hours functions to see if it locks out ppl after certain hours
 @app.route("/manage_markethours", methods=['GET', 'POST'])
 @login_required
 @admin_required
