@@ -520,7 +520,7 @@ def sellingstocks():
 @app.route("/create-stocks", methods=["GET", "POST"])
 @login_required
 @admin_required
-def add_stocks():
+def add_stock():
     if request.method == 'POST':
         stockname = request.form['stockName']
         ticker = request.form['ticker']
@@ -543,10 +543,10 @@ def add_stocks():
         
     return render_template('add_stock.html')
 
-@app.route("/update-stock/", methods=["GET", "POST"])
+@app.route("/update-stock/<int:id>", methods=["GET", "POST"])
 @login_required
 @admin_required
-def update_stock(id):
+def edit_stock(id):
     stock = StockInventory.query.get_or_404(id)
     
     if request.method == 'POST':
