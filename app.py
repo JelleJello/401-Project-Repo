@@ -626,6 +626,7 @@ DAY_NAME_TO_INT = {
 
 # Distinction between dates and days for the market hours, days are Monday-Friday, dates are for holidays (can hard code), changing the time is separate
 # Test market hours functions to see if it locks out ppl after certain hours
+# Have a table displayed of the holidays and dates that you added, holidays can be hard coded just show the code
 @app.route("/manage_markethours", methods=['GET', 'POST'])
 @login_required
 @admin_required
