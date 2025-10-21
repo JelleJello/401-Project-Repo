@@ -5,14 +5,13 @@ from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_bcrypt import Bcrypt
 from functools import wraps
-from datetime import datetime, date
+from datetime import datetime, date, time
 from decimal import Decimal
 # from faker import Faker
 import holidays
 import builtins
 import random
 import math
-import time
 
 from sqlalchemy import func
 # import pandas as pd
@@ -104,8 +103,8 @@ class WorkingDay(db.Model):
     __tablename__ = 'working_day'
     workingDayId = db.Column(db.Integer, primary_key=True)
     dayOfWeek = db.Column(db.Integer)  # 0=Monday, 6=Sunday
-    startTime = db.Column(db.Integer)
-    endTime = db.Column(db.Integer)
+    open_time = db.Column(db.Time)
+    close_time = db.Column(db.Time)
     createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
     updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'), unique=True)
@@ -134,6 +133,16 @@ with app.app_context():
         db.session.add(stock2)
         db.session.add(stock3)
         db.session.add(stock4)
+        db.session.commit()
+
+    # Hardcode holiday dates
+    if not Exception.query.first():
+        holiday1 = Exception(reason='New Year\'s Day', holidayDate=date(2026, 1, 1))
+        holiday2 = Exception(reason='Christmas Day', holidayDate=date(2025, 12, 25))
+        holiday3 = Exception(reason='Thanksgiving', holidayDate=date(2025, 11, 27))
+        db.session.add(holiday1)
+        db.session.add(holiday2)
+        db.session.add(holiday3)
         db.session.commit()
 
 # Random Price Generator
@@ -385,8 +394,12 @@ def removefunds():
 @app.route("/market")
 @login_required
 def market():
-    stocks = StockInventory.query.all()
-    return render_template("market.html", stocks=stocks)
+    if is_market_open():
+        stocks = StockInventory.query.all()
+        return render_template("market.html", stocks=stocks)
+    else:
+        flash("Market is closed.", 'error')
+        return redirect(url_for('portfolio'))
 
 @app.route("/about")
 def about():
@@ -396,7 +409,7 @@ def about():
 # market functions BUY/SELL (for user)
 @app.route('/purchasingstocks', methods=["GET", "POST"])
 @login_required
-def purchasingstocks():
+def purchasingstocks():    
     if request.method == "GET":
         return render_template("purchasingstocks.html")
 
@@ -546,28 +559,28 @@ def sellingstocks():
         return redirect(url_for('sellingstocks'))
     
 
-# Random Price Generator
-@app.route("/random_pricegen", methods=["POST"])
-@login_required
-@admin_required
-def price_gen(interval_seconds=30):
-    # code to generate random price per stock
-    # if function/method = buy
-     While True:
-        StockInventory.currentMarketPrice = float(math.rand(0.02, 200))
-        time.sleep(interval_seconds)
-        return StockInventory.currentMarketPrice
-    # the price should be given to "currentMarketPrice" attribute
-    # the price should update every 30 seconds
-    # price should be saved per purchase
-        # eg. user buys 2 TSLA stocks for 45.87 then 1 minute later they will buy TSLA for 23.56
-    return render_template('market.html')
-# Random price generator function
-# Links to front end, not back end
-# Remove option to add price for stocks in admin function
-# Every time a user buys, the price saves, otherwise it randomly generates a number
-# Updates to currentMarketPrice
-# Go back and look at business case to check what we have done so far, make check marks
+# # Random Price Generator
+# @app.route("/random_pricegen", methods=["POST"])
+# @login_required
+# @admin_required
+# def price_gen(interval_seconds=30):
+#     # code to generate random price per stock
+#     # if function/method = buy
+#      While True:
+#         StockInventory.currentMarketPrice = float(math.rand(0.02, 200))
+#         time.sleep(interval_seconds)
+#         return StockInventory.currentMarketPrice
+#     # the price should be given to "currentMarketPrice" attribute
+#     # the price should update every 30 seconds
+#     # price should be saved per purchase
+#         # eg. user buys 2 TSLA stocks for 45.87 then 1 minute later they will buy TSLA for 23.56
+#     return render_template('market.html')
+# # Random price generator function
+# # Links to front end, not back end
+# # Remove option to add price for stocks in admin function
+# # Every time a user buys, the price saves, otherwise it randomly generates a number
+# # Updates to currentMarketPrice
+# # Go back and look at business case to check what we have done so far, make check marks
 
 # ADMIN FUNCTIONS
 @app.route("/create-stocks", methods=["GET", "POST"])
@@ -661,52 +674,90 @@ DAY_NAME_TO_INT = {
 # Distinction between dates and days for the market hours, days are Monday-Friday, dates are for holidays (can hard code), changing the time is separate
 # Test market hours functions to see if it locks out ppl after certain hours
 # Have a table displayed of the holidays and dates that you added, holidays can be hard coded just show the code
-@app.route("/manage_markethours", methods=['GET', 'POST'])
+@login_required
+def is_market_open():
+
+    now = datetime.now()
+    current_weekday = now.weekday()  # Monday=0, Sunday=6
+    
+    # Check if today is a holiday
+    holiday = Exception.query.filter_by(holidayDate=now.date()).first()
+    if holiday:
+        flash("Market is closed today due to a holiday.")
+        return redirect(url_for('portfolio'))
+
+    # Retrieve or initialize working hours for today
+    working_day = WorkingDay.query.filter_by(dayOfWeek=current_weekday).first()
+    if not working_day:
+        # Create new entry if not exist
+        working_day = WorkingDay(
+            dayOfWeek=current_weekday,
+            open_time=time(8, 0),
+            close_time=time(16, 0),
+        )
+        db.session.add(working_day)
+        db.session.commit()
+    else:
+        # Update existing entry
+        working_day.open_time = time(8, 0)
+        working_day.close_time = time(16, 0)
+        working_day.updatedAt = datetime.utcnow()
+        db.session.commit()
+
+    open_time = working_day.open_time
+    close_time = working_day.close_time
+    current_time = now.time()
+
+    # Check if current time is outside market hours
+    if current_time < open_time or current_time > close_time:
+        flash("Market is closed at this time.")
+        return redirect(url_for('portfolio'))
+
+    # If open, return True or proceed
+    return True
+
+@app.route('/manage_markethours', methods=["GET", "POST"])
 @login_required
 @admin_required
 def manage_markethours():
-    if request.method == 'POST':
-        # Get day of the week as a string from form input
-        day_of_week_str = request.form.get('dayOfWeek')  # e.g., "Monday"
-        # day_of_week_str_cap = day_of_week_str.capitalize()  # Ensure proper capitalization
-
-        # Convert day string to integer
-        day_of_week = DAY_NAME_TO_INT.get(day_of_week_str)
-        if day_of_week is None:
-            flash('Invalid day of the week.')
-            return redirect(url_for('manage_markethours'))
-
-        # Get start and end times as strings in 12-hour format
-        start_time_str = request.form.get('startTime')  # e.g., "02:30 PM"
-        end_time_str = request.form.get('endTime')      # e.g., "05:45 AM"
-
-        # Parse 12-hour format time strings into datetime objects
+    if request.method == "POST":
+        # Get times from form input
+        open_time_str = request.form.get('open_time')  # e.g., "09:00"
+        close_time_str = request.form.get('close_time')  # e.g., "17:00"
+        
         try:
-            start_time_dt = datetime.strptime(start_time_str, '%I:%M %p')
-            end_time_dt = datetime.strptime(end_time_str, '%I:%M %p')
-
-            # Convert to minutes since midnight
-            start_time_minutes = start_time_dt.hour * 60 + start_time_dt.minute
-            end_time_minutes = end_time_dt.hour * 60 + end_time_dt.minute
+            new_open_time = datetime.strptime(open_time_str, '%H:%M').time()
+            new_close_time = datetime.strptime(close_time_str, '%H:%M').time()
         except ValueError:
-            # Handle invalid input format
-            flash('Invalid time format. Please use HH:MM AM/PM format.')
+            flash("Invalid time format.", 'error')
             return redirect(url_for('manage_markethours'))
 
-        # Query or create working day
-        working_day = WorkingDay.query.filter_by(dayOfWeek=day_of_week).first()
+        today = date.today()
+        today_weekday = today.weekday()
+
+        # Find the WorkingDay entry for today (by dayOfWeek)
+        working_day = WorkingDay.query.filter_by(dayOfWeek=today_weekday).first()
         if not working_day:
-            working_day = WorkingDay(dayOfWeek=day_of_week)
+            # If no entry, create one
+            working_day = WorkingDay(
+                dayOfWeek=today_weekday,
+                open_time=new_open_time,
+                close_time=new_close_time,
+            )
             db.session.add(working_day)
+        else:
+            # Update existing
+            working_day.open_time = new_open_time
+            working_day.close_time = new_close_time
+            working_day.updatedAt = datetime.utcnow()
 
-        # Save minutes
-        working_day.startTime = start_time_minutes
-        working_day.endTime = end_time_minutes
         db.session.commit()
-
-        return redirect(url_for('manage_markethours'))
+        flash("Today's market hours updated.", 'success')
+        return redirect(url_for('admin_dashboard'))  # redirect as appropriate
 
     return render_template('manage_markethours.html')
+
+
     
 @app.route('/add_holiday', methods=['GET', 'POST'])
 def add_holiday():

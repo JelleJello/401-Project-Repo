@@ -40,29 +40,14 @@
             <form method="POST">
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="dayOfWeek">Day of Week:</label>
-                        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
-                            <option selected>Choose...</option>
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                            <option value="Saturday">Saturday</option>
-                            <option value="Sunday">Sunday</option>
-                        </select>
+                        <label for="open_time">Start Time:</label>
+                        <input type="text" id="open_time" name="open_time" placeholder="HH:MM" required>
                     </div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="startTime">Start Time:</label>
-                        <input type="text" name="startTime" placeholder="HH:MM AM/PM" required>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="endTime">End Time:</label>
-                        <input type="text" name="endTime" placeholder="HH:MM AM/PM" required>
+                        <label for="close_time">End Time:</label>
+                        <input type="text" id="close_time" name="close_time" placeholder="HH:MM" required>
                     </div>
                 </div>
                 <button type="submit">Update Working Day</button>
