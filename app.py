@@ -550,8 +550,13 @@ def sellingstocks():
 @app.route("/random_pricegen", methods=["POST"])
 @login_required
 @admin_required
-def price_gen():
+def price_gen(interval_seconds=30):
     # code to generate random price per stock
+    # if function/method = buy
+     While True:
+        StockInventory.currentMarketPrice = float(math.rand(0.02, 200))
+        time.sleep(interval_seconds)
+        return StockInventory.currentMarketPrice
     # the price should be given to "currentMarketPrice" attribute
     # the price should update every 30 seconds
     # price should be saved per purchase
