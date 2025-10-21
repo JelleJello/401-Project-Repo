@@ -38,7 +38,8 @@
                         <h5 class="card-title">Current Earnings</h5>
                         <p class="card-text">${{ "{:,.2f}".format(wallet_amount or 0) }}</p>
                         <div class="mt-auto d-flex justify-content-center gap-2">
-                        <a href="{{ url_for('addfunds') }}" class="btn btn-primary mt-auto">Add Funds</a>
+                        <a href="{{ url_for('addfunds') }}" class="btn btn-primary mt-auto">Deposit Funds</a>
+                        <a href="{{ url_for('removefunds') }}" class="btn btn-primary mt-auto">Withdraw Funds</a>
                     </div>
                 </div>
             </div>
