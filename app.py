@@ -200,6 +200,16 @@ def load_user(user_id):
         return User.query.get(int(user_id.replace("user-", "")))
     elif user_id.startswith("admin-"):
         return Administrator.query.get(int(user_id.replace("admin-", "")))
+    
+# checking if the market is open or closed
+def market_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not is_market_open():
+            flash("Market is closed.", 'error')
+            return redirect(url_for('portfolio'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 bcrypt = Bcrypt(app)
 
@@ -393,13 +403,10 @@ def removefunds():
 
 @app.route("/market")
 @login_required
+@market_required
 def market():
-    if is_market_open():
-        stocks = StockInventory.query.all()
-        return render_template("market.html", stocks=stocks)
-    else:
-        flash("Market is closed.", 'error')
-        return redirect(url_for('portfolio'))
+    stocks = StockInventory.query.all()
+    return render_template("market.html", stocks=stocks)
 
 @app.route("/about")
 def about():
@@ -674,7 +681,6 @@ DAY_NAME_TO_INT = {
 # Distinction between dates and days for the market hours, days are Monday-Friday, dates are for holidays (can hard code), changing the time is separate
 # Test market hours functions to see if it locks out ppl after certain hours
 # Have a table displayed of the holidays and dates that you added, holidays can be hard coded just show the code
-@login_required
 def is_market_open():
 
     now = datetime.now()
