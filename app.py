@@ -759,8 +759,8 @@ def manage_markethours():
 
 
     
-@app.route('/add_holiday', methods=['GET', 'POST'])
-def add_holiday():
+@app.route('/add_exception', methods=['GET', 'POST'])
+def add_exception():
     if request.method == 'POST':
         holiday_date_str = request.form.get('holidayDate')  # format: 'YYYY-MM-DD'
         reason = request.form.get('reason')
@@ -772,9 +772,10 @@ def add_holiday():
             new_exception = Exception(holidayDate=holiday_date, reason=reason)
             db.session.add(new_exception)
             db.session.commit()
-        return redirect(url_for('manage_markethours'))
+        flash("Holiday updated.", 'success')
+        return redirect(url_for('admin_dashboard'))
 
-    return render_template('manage_markethours.html')
+    return render_template('add_exception.html')
 
 
 if __name__ == "__main__":
