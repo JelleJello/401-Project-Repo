@@ -146,14 +146,14 @@ with app.app_context():
         db.session.commit()
 
 # Random Price Generator
-# def generate_random_price(interval_seconds=30):
-#     """Generates a random price within a specified range."""
-#     # min_price = 5.00
-#     # max_price = 300.00
-#     while True:
-#         StockInventory.currentMarketPrice = float(math.rand(0, 200))
-#         time.sleep(interval_seconds)
-#         return StockInventory.currentMarketPrice
+def generate_random_price(interval_seconds=30):
+    """Generates a random price within a specified range."""
+    # min_price = 5.00
+    # max_price = 300.00
+    while True:
+        StockInventory.currentMarketPrice = float(math.rand(0, 200))
+        time.sleep(interval_seconds)
+        return StockInventory.currentMarketPrice
 
 # Random Price Generator
 def generate_random_price(min_price=1.00, max_price=1000.00):
@@ -201,13 +201,50 @@ def load_user(user_id):
     elif user_id.startswith("admin-"):
         return Administrator.query.get(int(user_id.replace("admin-", "")))
     
+
+def is_market_open():
+
+    now = datetime.now()
+    current_weekday = now.weekday()  # Monday=0, Sunday=6
+    
+    # Check if today is a holiday
+    holiday = Exception.query.filter_by(holidayDate=now.date()).first()
+    if holiday:
+        flash("Market is closed today due to a holiday.")
+        return redirect(url_for('portfolio'))
+
+    # Retrieve or initialize working hours for today
+    working_day = WorkingDay.query.filter_by(dayOfWeek=current_weekday).first()
+    if not working_day:
+        # Create new entry if not exist
+        working_day = WorkingDay(
+            dayOfWeek=current_weekday,
+            open_time=time(8, 0),
+            close_time=time(16, 0),
+        )
+        db.session.add(working_day)
+        db.session.commit()
+    else:
+        # Update existing entry
+        working_day.open_time = time(8, 0)
+        working_day.close_time = time(16, 0)
+        working_day.updatedAt = datetime.utcnow()
+        db.session.commit()
+
+    open_time = working_day.open_time
+    close_time = working_day.close_time
+    current_time = now.time()
+
+    # Check if current time is inside market hours
+    return current_time > open_time and current_time < close_time
+
 # checking if the market is open or closed
 def market_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not is_market_open():
             flash("Market is closed.", 'error')
-            return redirect(url_for('portfolio'))
+            return render_template("portfolio.html"), 503
         return f(*args, **kwargs)
     return decorated_function
 
@@ -677,50 +714,6 @@ DAY_NAME_TO_INT = {
     'Saturday': 5,
     'Sunday': 6
 }
-
-# Distinction between dates and days for the market hours, days are Monday-Friday, dates are for holidays (can hard code), changing the time is separate
-# Test market hours functions to see if it locks out ppl after certain hours
-# Have a table displayed of the holidays and dates that you added, holidays can be hard coded just show the code
-def is_market_open():
-
-    now = datetime.now()
-    current_weekday = now.weekday()  # Monday=0, Sunday=6
-    
-    # Check if today is a holiday
-    holiday = Exception.query.filter_by(holidayDate=now.date()).first()
-    if holiday:
-        flash("Market is closed today due to a holiday.")
-        return redirect(url_for('portfolio'))
-
-    # Retrieve or initialize working hours for today
-    working_day = WorkingDay.query.filter_by(dayOfWeek=current_weekday).first()
-    if not working_day:
-        # Create new entry if not exist
-        working_day = WorkingDay(
-            dayOfWeek=current_weekday,
-            open_time=time(8, 0),
-            close_time=time(16, 0),
-        )
-        db.session.add(working_day)
-        db.session.commit()
-    else:
-        # Update existing entry
-        working_day.open_time = time(8, 0)
-        working_day.close_time = time(16, 0)
-        working_day.updatedAt = datetime.utcnow()
-        db.session.commit()
-
-    open_time = working_day.open_time
-    close_time = working_day.close_time
-    current_time = now.time()
-
-    # Check if current time is outside market hours
-    if current_time < open_time or current_time > close_time:
-        flash("Market is closed at this time.")
-        return redirect(url_for('portfolio'))
-
-    # If open, return True or proceed
-    return True
 
 @app.route('/manage_markethours', methods=["GET", "POST"])
 @login_required
