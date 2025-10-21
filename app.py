@@ -353,6 +353,35 @@ def addfunds():
 
     return render_template("addfunds.html")
 
+@app.route('/removefunds', methods=["GET", "POST"])
+@login_required
+def removefunds():
+    if request.method == "POST":
+        amount_to_remove = request.form.get("amount")
+
+        try:
+            amount = float(amount_to_remove)
+            if amount <= 0:
+                raise ValueError("Amount must be greater than zero.")
+        except (ValueError, TypeError):
+            flash("Invalid amount entered.", "error")
+            return redirect(url_for("portfolio"))
+
+        portfolio = Portfolio.query.filter_by(user_id=current_user.id).first()
+        if not portfolio:
+            portfolio = Portfolio(user_id=current_user.id, walletAmount=amount)
+            db.session.add(portfolio)
+        else:
+            portfolio.walletAmount -= amount
+            portfolio.updatedAt = datetime.utcnow()
+
+        db.session.commit()
+        flash(f"${amount:,.2f} successfully withdrawn from your wallet!", "success")
+        return redirect(url_for("portfolio"))
+
+    return render_template("removefunds.html")
+
+
 @app.route("/market")
 @login_required
 def market():
