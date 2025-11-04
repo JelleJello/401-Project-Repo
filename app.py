@@ -22,7 +22,7 @@ app = Flask(__name__)
 bootstrap = Bootstrap5(app)
 
 # Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/stocks_application'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:password@my-rds-instance.cgt86k4qun5e.us-east-1.rds.amazonaws.com/stocks_application' #mysql+pymysql://root:password@localhost/stocks_application
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your-secret-key'
 
