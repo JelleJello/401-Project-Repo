@@ -37,20 +37,134 @@
             <h4 class="mb-0">Change the Hours of the Market</h4>
         </div>
         <div class="card-body">
-            <form method="POST">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="open_time">Start Time:</label>
-                        <input type="text" id="open_time" name="open_time" placeholder="HH:MM" required>
+            <form action="{{url_for('manage_markethours')}}" method="POST">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5 class="mb-0">Monday</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="mondaySwitch" checked>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col">
+                            <label for="mondayStart" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="mondayStart">
+                        </div>
+                        <div class="col">
+                            <label for="mondayEnd" class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="mondayEnd">
+                        </div>
                     </div>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="close_time">End Time:</label>
-                        <input type="text" id="close_time" name="close_time" placeholder="HH:MM" required>
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5 class="mb-0">Tuesday</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="tuesdaySwitch" checked>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col">
+                            <label for="tuesdayStart" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="tuesdayStart">
+                        </div>
+                        <div class="col">
+                            <label for="tuesdayEnd" class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="tuesdayEnd">
+                        </div>
                     </div>
                 </div>
-                <button type="submit">Update Working Day</button>
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5 class="mb-0">Wednesday</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="wednesdaySwitch" checked>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col">
+                            <label for="wednesdayStart" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="wednesdayStart">
+                        </div>
+                        <div class="col">
+                            <label for="wednesdayEnd" class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="wednesdayEnd">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5 class="mb-0">Thursday</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="thursdaySwitch" checked>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col">
+                            <label for="thursdayStart" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="thursdayStart">
+                        </div>
+                        <div class="col">
+                            <label for="thursdayEnd" class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="thursdayEnd">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5 class="mb-0">Friday</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="fridaySwitch" checked>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col">
+                            <label for="fridayStart" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="fridayStart">
+                        </div>
+                        <div class="col">
+                            <label for="fridayEnd" class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="fridayEnd">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5 class="mb-0">Saturday</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="saturdaySwitch">
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col">
+                            <label for="saturdayStart" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="saturdayStart">
+                        </div>
+                        <div class="col">
+                            <label for="saturdayEnd" class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="saturdayEnd">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5 class="mb-0">Sunday</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="sundaySwitch">
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col">
+                            <label for="sundayStart" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="sundayStart">
+                        </div>
+                        <div class="col">
+                            <label for="sundayEnd" class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="sundayEnd">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit">Set Hours</button>
             </form>
         </div>
     </div>

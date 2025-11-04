@@ -5,13 +5,14 @@ from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_bcrypt import Bcrypt
 from functools import wraps
-from datetime import datetime, date, time
+from datetime import datetime, date
 from decimal import Decimal
 # from faker import Faker
 import holidays
 import builtins
 import random
 import math
+import time
 
 from sqlalchemy import func
 # import pandas as pd
@@ -102,9 +103,9 @@ class StockInventory(db.Model):
 class WorkingDay(db.Model):
     __tablename__ = 'working_day'
     workingDayId = db.Column(db.Integer, primary_key=True)
-    dayOfWeek = db.Column(db.Integer)  # 0=Monday, 6=Sunday
-    open_time = db.Column(db.Time)
-    close_time = db.Column(db.Time)
+    dayOfWeek = db.Column(db.String(10))
+    startTime = db.Column(db.Integer)
+    endTime = db.Column(db.Integer)
     createdAt = db.Column(db.DateTime(timezone=True),server_default=func.now(), nullable=False)
     updatedAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     admin_id = db.Column(db.ForeignKey('administrator.AdministratorId'), unique=True)
@@ -135,25 +136,15 @@ with app.app_context():
         db.session.add(stock4)
         db.session.commit()
 
-    # Hardcode holiday dates
-    if not Exception.query.first():
-        holiday1 = Exception(reason='New Year\'s Day', holidayDate=date(2026, 1, 1))
-        holiday2 = Exception(reason='Christmas Day', holidayDate=date(2025, 12, 25))
-        holiday3 = Exception(reason='Thanksgiving', holidayDate=date(2025, 11, 27))
-        db.session.add(holiday1)
-        db.session.add(holiday2)
-        db.session.add(holiday3)
-        db.session.commit()
-
 # Random Price Generator
-def generate_random_price(interval_seconds=30):
-    """Generates a random price within a specified range."""
-    # min_price = 5.00
-    # max_price = 300.00
-    while True:
-        StockInventory.currentMarketPrice = float(math.rand(0, 200))
-        time.sleep(interval_seconds)
-        return StockInventory.currentMarketPrice
+# def generate_random_price(interval_seconds=30):
+#     """Generates a random price within a specified range."""
+#     # min_price = 5.00
+#     # max_price = 300.00
+#     while True:
+#         StockInventory.currentMarketPrice = float(math.rand(0, 200))
+#         time.sleep(interval_seconds)
+#         return StockInventory.currentMarketPrice
 
 # Random Price Generator
 def generate_random_price(min_price=1.00, max_price=1000.00):
@@ -200,53 +191,6 @@ def load_user(user_id):
         return User.query.get(int(user_id.replace("user-", "")))
     elif user_id.startswith("admin-"):
         return Administrator.query.get(int(user_id.replace("admin-", "")))
-    
-
-def is_market_open():
-
-    now = datetime.now()
-    current_weekday = now.weekday()  # Monday=0, Sunday=6
-    
-    # Check if today is a holiday
-    holiday = Exception.query.filter_by(holidayDate=now.date()).first()
-    if holiday:
-        flash("Market is closed today due to a holiday.")
-        return redirect(url_for('portfolio'))
-
-    # Retrieve or initialize working hours for today
-    working_day = WorkingDay.query.filter_by(dayOfWeek=current_weekday).first()
-    if not working_day:
-        # Create new entry if not exist
-        working_day = WorkingDay(
-            dayOfWeek=current_weekday,
-            open_time=time(8, 0),
-            close_time=time(16, 0),
-        )
-        db.session.add(working_day)
-        db.session.commit()
-    else:
-        # Update existing entry
-        working_day.open_time = time(8, 0)
-        working_day.close_time = time(16, 0)
-        working_day.updatedAt = datetime.utcnow()
-        db.session.commit()
-
-    open_time = working_day.open_time
-    close_time = working_day.close_time
-    current_time = now.time()
-
-    # Check if current time is inside market hours
-    return current_time > open_time and current_time < close_time
-
-# checking if the market is open or closed
-def market_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not is_market_open():
-            flash("Market is closed.", 'error')
-            return render_template("portfolio.html"), 503
-        return f(*args, **kwargs)
-    return decorated_function
 
 bcrypt = Bcrypt(app)
 
@@ -372,6 +316,7 @@ def admin_dashboard():
     stock = StockInventory.query.all()  # Get all stocks for admin to manage
     return render_template('admin_dashboard.html', stock=stock)
 
+
 @app.route("/portfolio")
 @login_required
 def portfolio():
@@ -409,39 +354,82 @@ def addfunds():
 
     return render_template("addfunds.html")
 
-@app.route('/removefunds', methods=["GET", "POST"])
-@login_required
-def removefunds():
-    if request.method == "POST":
-        amount_to_remove = request.form.get("amount")
+@app.route('/manage_markethours', methods=['POST'])
+@admin_required
+def manage_markethours():
+    days_map = {
+        'Monday': 'Monday',
+        'Tuesday': 'Tuesday',
+        'Wednesday': 'Wednesday',
+        'Thursday': 'Thursday',
+        'Friday': 'Friday',
+        'Saturday': 'Saturday',
+        'Sunday': 'Sunday'
+    }
+    for day_name in days_map:
+        day_key_suffix = day_name.lower()
+        switch_id = f"{day_key_suffix}Switch"
+        start_id = f"{day_key_suffix}Start"
+        end_id = f"{day_key_suffix}End"
 
-        try:
-            amount = float(amount_to_remove)
-            if amount <= 0:
-                raise ValueError("Amount must be greater than zero.")
-        except (ValueError, TypeError):
-            flash("Invalid amount entered.", "error")
-            return redirect(url_for("portfolio"))
+        # Get switch state
+        switch_on = request.form.get(switch_id) == 'on'
+        start_time_str = request.form.get(start_id)
+        end_time_str = request.form.get(end_id)
 
-        portfolio = Portfolio.query.filter_by(user_id=current_user.id).first()
-        if not portfolio:
-            portfolio = Portfolio(user_id=current_user.id, walletAmount=amount)
-            db.session.add(portfolio)
+        def time_str_to_int(t_str):
+            if t_str:
+                return int(t_str.replace(':', ''))
+            return None
+
+        start_time_int = time_str_to_int(start_time_str)
+        end_time_int = time_str_to_int(end_time_str)
+
+        # Check if a record exists for this day
+        working_day = WorkingDay.query.filter_by(dayOfWeek=day_name).first()
+        if not working_day:
+            # create new
+            working_day = WorkingDay(
+                dayOfWeek=day_name,
+                startTime=start_time_int,
+                endTime=end_time_int,
+                admin_id=current_user.id
+            )
+            db.session.add(working_day)
         else:
-            portfolio.walletAmount -= amount
-            portfolio.updatedAt = datetime.utcnow()
+            working_day.startTime = start_time_int
+            working_day.endTime = end_time_int
 
-        db.session.commit()
-        flash(f"${amount:,.2f} successfully withdrawn from your wallet!", "success")
-        return redirect(url_for("portfolio"))
+        working_day.enabled = switch_on
 
-    return render_template("removefunds.html")
-
+    db.session.commit()
+    flash("Market hours updated.")
+    return redirect(url_for('admin_dashboard'))
 
 @app.route("/market")
 @login_required
-@market_required
 def market():
+    today_name = datetime.now().strftime("%A")
+    now_time = datetime.now().hour * 100 + datetime.now().minute  # e.g., 1:30 PM -> 1330
+    
+    working_day = WorkingDay.query.filter_by(dayOfWeek=today_name).first()
+
+    # Default is market open if no schedule found
+    is_open = True
+    
+    if working_day:
+        if not getattr(working_day, 'enabled', True):
+            is_open = False
+        elif working_day.startTime is not None and working_day.endTime is not None:
+            # Check time bounds
+            if not (working_day.startTime <= now_time <= working_day.endTime):
+                is_open = False
+
+    if not is_open:
+        # add alert that says 'Market is currently closed'"
+        return render_template("portfolio")
+
+    # If open give access to market
     stocks = StockInventory.query.all()
     return render_template("market.html", stocks=stocks)
 
@@ -449,11 +437,16 @@ def market():
 def about():
     return render_template("about.html")
 
+@app.route("/add_exception")
+@admin_required
+def add_exception():
+    return render_template("add_exception.html")
+
 
 # market functions BUY/SELL (for user)
 @app.route('/purchasingstocks', methods=["GET", "POST"])
 @login_required
-def purchasingstocks():    
+def purchasingstocks():
     if request.method == "GET":
         return render_template("purchasingstocks.html")
 
@@ -601,30 +594,6 @@ def sellingstocks():
         db.session.rollback()
         flash("Order couldn't go through. Please try again.", 'sell-error')
         return redirect(url_for('sellingstocks'))
-    
-
-# # Random Price Generator
-# @app.route("/random_pricegen", methods=["POST"])
-# @login_required
-# @admin_required
-# def price_gen(interval_seconds=30):
-#     # code to generate random price per stock
-#     # if function/method = buy
-#      While True:
-#         StockInventory.currentMarketPrice = float(math.rand(0.02, 200))
-#         time.sleep(interval_seconds)
-#         return StockInventory.currentMarketPrice
-#     # the price should be given to "currentMarketPrice" attribute
-#     # the price should update every 30 seconds
-#     # price should be saved per purchase
-#         # eg. user buys 2 TSLA stocks for 45.87 then 1 minute later they will buy TSLA for 23.56
-#     return render_template('market.html')
-# # Random price generator function
-# # Links to front end, not back end
-# # Remove option to add price for stocks in admin function
-# # Every time a user buys, the price saves, otherwise it randomly generates a number
-# # Updates to currentMarketPrice
-# # Go back and look at business case to check what we have done so far, make check marks
 
 # ADMIN FUNCTIONS
 @app.route("/create-stocks", methods=["GET", "POST"])
@@ -705,61 +674,9 @@ def view_stocks(id):
     stock = StockInventory.query.get_or_404(id)
     return render_template("admin_dashboard.html", stock=stock)
 
-DAY_NAME_TO_INT = {
-    'Monday': 0,
-    'Tuesday': 1,
-    'Wednesday': 2,
-    'Thursday': 3,
-    'Friday': 4,
-    'Saturday': 5,
-    'Sunday': 6
-}
 
-@app.route('/manage_markethours', methods=["GET", "POST"])
-@login_required
-@admin_required
-def manage_markethours():
-    if request.method == "POST":
-        # Get times from form input
-        open_time_str = request.form.get('open_time')  # e.g., "09:00"
-        close_time_str = request.form.get('close_time')  # e.g., "17:00"
-        
-        try:
-            new_open_time = datetime.strptime(open_time_str, '%H:%M').time()
-            new_close_time = datetime.strptime(close_time_str, '%H:%M').time()
-        except ValueError:
-            flash("Invalid time format.", 'error')
-            return redirect(url_for('manage_markethours'))
-
-        today = date.today()
-        today_weekday = today.weekday()
-
-        # Find the WorkingDay entry for today (by dayOfWeek)
-        working_day = WorkingDay.query.filter_by(dayOfWeek=today_weekday).first()
-        if not working_day:
-            # If no entry, create one
-            working_day = WorkingDay(
-                dayOfWeek=today_weekday,
-                open_time=new_open_time,
-                close_time=new_close_time,
-            )
-            db.session.add(working_day)
-        else:
-            # Update existing
-            working_day.open_time = new_open_time
-            working_day.close_time = new_close_time
-            working_day.updatedAt = datetime.utcnow()
-
-        db.session.commit()
-        flash("Today's market hours updated.", 'success')
-        return redirect(url_for('admin_dashboard'))  # redirect as appropriate
-
-    return render_template('manage_markethours.html')
-
-
-    
-@app.route('/add_exception', methods=['GET', 'POST'])
-def add_exception():
+@app.route('/add_holiday', methods=['GET', 'POST'])
+def add_holiday():
     if request.method == 'POST':
         holiday_date_str = request.form.get('holidayDate')  # format: 'YYYY-MM-DD'
         reason = request.form.get('reason')
@@ -771,10 +688,9 @@ def add_exception():
             new_exception = Exception(holidayDate=holiday_date, reason=reason)
             db.session.add(new_exception)
             db.session.commit()
-        flash("Holiday updated.", 'success')
-        return redirect(url_for('admin_dashboard'))
+        return redirect(url_for('manage_markethours'))
 
-    return render_template('add_exception.html')
+    return render_template('manage_markethours.html')
 
 
 if __name__ == "__main__":
