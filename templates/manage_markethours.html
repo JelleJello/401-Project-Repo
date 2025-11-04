@@ -46,11 +46,11 @@
                         </div>
                     </div>
                     <div class="row g-2">
-                        <div class="col">
+                        <div class="col-sm-6">
                             <label for="mondayStart" class="form-label">Start Time</label>
                             <input type="time" class="form-control" id="mondayStart">
                         </div>
-                        <div class="col">
+                        <div class="col-sm-6">
                             <label for="mondayEnd" class="form-label">End Time</label>
                             <input type="time" class="form-control" id="mondayEnd">
                         </div>
@@ -164,7 +164,8 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit">Set Hours</button>
+                <button type="submit" class="btn btn-success">Save Hours</button>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
             </form>
         </div>
     </div>

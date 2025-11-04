@@ -382,78 +382,58 @@ def removefunds():
 
     return render_template("removefunds.html")
 
-@app.route('/manage_markethours', methods=["GET", "POST"])
-@admin_required
+DEFAULT_HOURS = {
+    'Monday':    {'start': 9 * 60, 'end': 17 * 60, 'closed': False},
+    'Tuesday':   {'start': 9 * 60, 'end': 17 * 60, 'closed': False},
+    'Wednesday': {'start': 9 * 60, 'end': 17 * 60, 'closed': False},
+    'Thursday':  {'start': 9 * 60, 'end': 17 * 60, 'closed': False},
+    'Friday':    {'start': 9 * 60, 'end': 17 * 60, 'closed': False},
+}
+
+@app.route('/manage_markethours', methods=['GET', 'POST'])
 def manage_markethours():
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    days_map = {day: day for day in days}  # For consistency
-
     if request.method == 'POST':
-        for day in days:
-            day_suffix = day.lower()
-            switch_id = f"{day_suffix}Switch"
-            start_id = f"{day_suffix}Start"
-            end_id = f"{day_suffix}End"
-
-            # Get form data
-            switch_state = request.form.get(switch_id)
-            start_time_str = request.form.get(start_id)
-            end_time_str = request.form.get(end_id)
-
-            # Determine if switch is ON
-            enabled = switch_state == 'on'
-
-            # Convert times from 'HH:MM' to integer e.g., 1300 for 1:00 PM
-            def time_str_to_int(t_str):
-                if t_str:
-                    return int(t_str.replace(':', ''))
-                return None
-
-            start_time = time_str_to_int(start_time_str)
-            end_time = time_str_to_int(end_time_str)
-
-            # Save or update the working day record
-            working_day = WorkingDay.query.filter_by(dayOfWeek=day).first()
-            if not working_day:
-                working_day = WorkingDay(
-                    dayOfWeek=day,
-                    startTime=start_time,
-                    endTime=end_time,
-                    # admin_id=current_user.admin_id  # if needed
-                )
-                db.session.add(working_day)
+        # Loop through each day to update hours
+        for day in DEFAULT_HOURS.keys():
+            closed = request.form.get(f'{day}_closed')
+            if closed:
+                # Day is closed, remove or set hours to None
+                working_day = WorkingDay.query.filter_by(dayOfWeek=day).first()
+                if working_day:
+                    db.session.delete(working_day)
             else:
-                working_day.startTime = start_time
-                working_day.endTime = end_time
-            working_day.enabled = enabled
+                start_time_str = request.form.get(f'{day}_start')
+                end_time_str = request.form.get(f'{day}_end')
+                if start_time_str and end_time_str:
+                    # Parse HH:MM to minutes
+                    start_hours, start_minutes = map(int, start_time_str.split(':'))
+                    end_hours, end_minutes = map(int, end_time_str.split(':'))
+                    start_total = start_hours * 60 + start_minutes
+                    end_total = end_hours * 60 + end_minutes
 
+                    working_day = WorkingDay.query.filter_by(dayOfWeek=day).first()
+                    if not working_day:
+                        working_day = WorkingDay(dayOfWeek=day)
+                        db.session.add(working_day)
+                    working_day.startTime = start_total
+                    working_day.endTime = end_total
         db.session.commit()
-        flash("Market hours updated.")
+        return redirect(url_for('manage_markethours'))
 
-    # On GET or after POST, fetch existing data to populate form
-    working_days = {wd.dayOfWeek: wd for wd in WorkingDay.query.all()}
-    days_data = {}
-    for day in days:
-        wd = working_days.get(day)
-        if wd:
-            start_hr = wd.startTime // 100 if wd.startTime else ''
-            start_min = wd.startTime % 100 if wd.startTime else ''
-            end_hr = wd.endTime // 100 if wd.endTime else ''
-            end_min = wd.endTime % 100 if wd.endTime else ''
-            days_data[day] = {
-                'enabled': wd.enabled,
-                'start_time_value': f"{str(start_hr).zfill(2)}:{str(start_min).zfill(2)}",
-                'end_time_value': f"{str(end_hr).zfill(2)}:{str(end_min).zfill(2)}"
-            }
+    # GET method: fetch current hours or use defaults
+    existing_hours = {wd.dayOfWeek: {'start': None, 'end': None} for wd in WorkingDay.query.all()}
+    for wd in existing_hours:
+        day_obj = WorkingDay.query.filter_by(dayOfWeek=wd).first()
+        if day_obj:
+            wd['start'] = f"{day_obj.startTime // 60:02d}:{day_obj.startTime % 60:02d}"
+            wd['end'] = f"{day_obj.endTime // 60:02d}:{day_obj.endTime % 60:02d}"
         else:
-            # Default empty values if not set
-            days_data[day] = {
-                'enabled': False,
-                'start_time_value': '',
-                'end_time_value': ''
-            }
+            # Use default
+            default = DEFAULT_HOURS[wd]
+            wd['start'] = f"{default['start'] // 60:02d}:{default['start'] % 60:02d}"
+            wd['end'] = f"{default['end'] // 60:02d}:{default['end'] % 60:02d}"
 
-    return render_template("manage_markethours.html", days=days_data)
+    return render_template('manage_markethours.html', hours=existing_hours)
 
 @app.route("/market")
 @login_required
