@@ -354,57 +354,106 @@ def addfunds():
 
     return render_template("addfunds.html")
 
-@app.route('/manage_markethours', methods=['POST'])
+@app.route('/removefunds', methods=["GET", "POST"])
+@login_required
+def removefunds():
+    if request.method == "POST":
+        amount_to_remove = request.form.get("amount")
+
+        try:
+            amount = float(amount_to_remove)
+            if amount <= 0:
+                raise ValueError("Amount must be greater than zero.")
+        except (ValueError, TypeError):
+            flash("Invalid amount entered.", "error")
+            return redirect(url_for("portfolio"))
+
+        portfolio = Portfolio.query.filter_by(user_id=current_user.id).first()
+        if not portfolio:
+            portfolio = Portfolio(user_id=current_user.id, walletAmount=amount)
+            db.session.add(portfolio)
+        else:
+            portfolio.walletAmount -= amount
+            portfolio.updatedAt = datetime.utcnow()
+
+        db.session.commit()
+        flash(f"${amount:,.2f} successfully withdrawn from your wallet!", "success")
+        return redirect(url_for("portfolio"))
+
+    return render_template("removefunds.html")
+
+@app.route('/manage_markethours', methods=["GET", "POST"])
 @admin_required
 def manage_markethours():
-    days_map = {
-        'Monday': 'Monday',
-        'Tuesday': 'Tuesday',
-        'Wednesday': 'Wednesday',
-        'Thursday': 'Thursday',
-        'Friday': 'Friday',
-        'Saturday': 'Saturday',
-        'Sunday': 'Sunday'
-    }
-    for day_name in days_map:
-        day_key_suffix = day_name.lower()
-        switch_id = f"{day_key_suffix}Switch"
-        start_id = f"{day_key_suffix}Start"
-        end_id = f"{day_key_suffix}End"
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    days_map = {day: day for day in days}  # For consistency
 
-        # Get switch state
-        switch_on = request.form.get(switch_id) == 'on'
-        start_time_str = request.form.get(start_id)
-        end_time_str = request.form.get(end_id)
+    if request.method == 'POST':
+        for day in days:
+            day_suffix = day.lower()
+            switch_id = f"{day_suffix}Switch"
+            start_id = f"{day_suffix}Start"
+            end_id = f"{day_suffix}End"
 
-        def time_str_to_int(t_str):
-            if t_str:
-                return int(t_str.replace(':', ''))
-            return None
+            # Get form data
+            switch_state = request.form.get(switch_id)
+            start_time_str = request.form.get(start_id)
+            end_time_str = request.form.get(end_id)
 
-        start_time_int = time_str_to_int(start_time_str)
-        end_time_int = time_str_to_int(end_time_str)
+            # Determine if switch is ON
+            enabled = switch_state == 'on'
 
-        # Check if a record exists for this day
-        working_day = WorkingDay.query.filter_by(dayOfWeek=day_name).first()
-        if not working_day:
-            # create new
-            working_day = WorkingDay(
-                dayOfWeek=day_name,
-                startTime=start_time_int,
-                endTime=end_time_int,
-                admin_id=current_user.id
-            )
-            db.session.add(working_day)
+            # Convert times from 'HH:MM' to integer e.g., 1300 for 1:00 PM
+            def time_str_to_int(t_str):
+                if t_str:
+                    return int(t_str.replace(':', ''))
+                return None
+
+            start_time = time_str_to_int(start_time_str)
+            end_time = time_str_to_int(end_time_str)
+
+            # Save or update the working day record
+            working_day = WorkingDay.query.filter_by(dayOfWeek=day).first()
+            if not working_day:
+                working_day = WorkingDay(
+                    dayOfWeek=day,
+                    startTime=start_time,
+                    endTime=end_time,
+                    # admin_id=current_user.admin_id  # if needed
+                )
+                db.session.add(working_day)
+            else:
+                working_day.startTime = start_time
+                working_day.endTime = end_time
+            working_day.enabled = enabled
+
+        db.session.commit()
+        flash("Market hours updated.")
+
+    # On GET or after POST, fetch existing data to populate form
+    working_days = {wd.dayOfWeek: wd for wd in WorkingDay.query.all()}
+    days_data = {}
+    for day in days:
+        wd = working_days.get(day)
+        if wd:
+            start_hr = wd.startTime // 100 if wd.startTime else ''
+            start_min = wd.startTime % 100 if wd.startTime else ''
+            end_hr = wd.endTime // 100 if wd.endTime else ''
+            end_min = wd.endTime % 100 if wd.endTime else ''
+            days_data[day] = {
+                'enabled': wd.enabled,
+                'start_time_value': f"{str(start_hr).zfill(2)}:{str(start_min).zfill(2)}",
+                'end_time_value': f"{str(end_hr).zfill(2)}:{str(end_min).zfill(2)}"
+            }
         else:
-            working_day.startTime = start_time_int
-            working_day.endTime = end_time_int
+            # Default empty values if not set
+            days_data[day] = {
+                'enabled': False,
+                'start_time_value': '',
+                'end_time_value': ''
+            }
 
-        working_day.enabled = switch_on
-
-    db.session.commit()
-    flash("Market hours updated.")
-    return redirect(url_for('admin_dashboard'))
+    return render_template("manage_markethours.html", days=days_data)
 
 @app.route("/market")
 @login_required
@@ -421,15 +470,13 @@ def market():
         if not getattr(working_day, 'enabled', True):
             is_open = False
         elif working_day.startTime is not None and working_day.endTime is not None:
-            # Check time bounds
             if not (working_day.startTime <= now_time <= working_day.endTime):
                 is_open = False
 
     if not is_open:
-        # add alert that says 'Market is currently closed'"
+        flash(f"Market is currently closed", "warning")
         return render_template("portfolio")
 
-    # If open give access to market
     stocks = StockInventory.query.all()
     return render_template("market.html", stocks=stocks)
 
