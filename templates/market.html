@@ -124,18 +124,22 @@
                             <thead>
                                 <tr>
                                     <th>Company</th>
-                                    <th>Shares</th>
+                                    <th>Ticker</th>
+                                    <th>Current Price</th>
+                                    <th>Shares Available</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for stock in stocks %}
-                                <tr>
+                                <tr data-ticker="{{ stock.ticker }}">
                                     <th scope="row">{{ stock.stockName }}</th>
+                                    <td>{{ stock.ticker }}</td>
+                                    <td class="stock-price" data-ticker="{{ stock.ticker }}">${{ "{:.2f}".format(stock.currentMarketPrice|float) if stock.currentMarketPrice else "0.00" }}</td>
                                     <td>{{ stock.quantity }}</td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="2" class="text-center">No holdings available.</td>
+                                    <td colspan="4" class="text-center">No stocks available.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -219,6 +223,45 @@
         document.getElementById('dow30Chart'),
         config
     );
+
+    // Simple Stock Price Updater
+    // This function updates stock prices every 30 seconds
+    function updateStockPrices() {
+        // Call the API to update prices
+        fetch('/api/update-prices?threshold=5')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update each stock price on the page
+                    for (let ticker in data.prices) {
+                        const priceElement = document.querySelector(`.stock-price[data-ticker="${ticker}"]`);
+                        if (priceElement) {
+                            const newPrice = data.prices[ticker].price;
+                            const oldPrice = parseFloat(priceElement.textContent.replace('$', ''));
+                            
+                            // Update the price
+                            priceElement.textContent = '$' + newPrice.toFixed(2);
+                            
+                            // Add a simple animation to show it updated
+                            priceElement.style.transition = 'background-color 0.3s';
+                            priceElement.style.backgroundColor = '#ffffcc';
+                            setTimeout(() => {
+                                priceElement.style.backgroundColor = '';
+                            }, 500);
+                        }
+                    }
+                    console.log('Stock prices updated!');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating prices:', error);
+            });
+    }
+
+    // Start updating prices every 30 seconds (30000 milliseconds)
+    // Update immediately when page loads, then every 30 seconds
+    updateStockPrices();
+    setInterval(updateStockPrices, 30000);
 </script>
 
 
