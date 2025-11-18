@@ -152,6 +152,16 @@ def generate_random_price(min_price=1.00, max_price=1000.00):
     random_float = random.uniform(min_price, max_price)
     return Decimal(str(round(random_float, 2)))
 
+# random price with threshold
+def generate_random_price_with_threshold(current_price, threshold_percent=5.0):
+    current = float(current_price)
+    # Calculate the range: current_price ± threshold_percent%
+    min_price = current * (1 - threshold_percent / 100)
+    max_price = current * (1 + threshold_percent / 100)
+    # Generate random price within this range
+    new_price = random.uniform(min_price, max_price)
+    return Decimal(str(round(new_price, 2)))
+
 # Updating stock price
 def update_stock_price(ticker):
     """Finds a stock by its ticker and updates its market price."""
@@ -174,6 +184,24 @@ def update_all_stock_prices():
             stock.updatedAt = datetime.utcnow()
             # print(f"Updated price for {stock.stockName} ({stock.ticker}) to {new_price}")
         db.session.commit()
+
+# Update all stock prices with threshold (for front-end)
+def update_all_stock_prices_with_threshold(threshold_percent=5.0):
+    """Updates the market price for all stocks within a threshold percentage."""
+    all_stocks = StockInventory.query.all()
+    updated_prices = {}
+    for stock in all_stocks:
+        if stock.currentMarketPrice:
+            new_price = generate_random_price_with_threshold(stock.currentMarketPrice, threshold_percent)
+            stock.currentMarketPrice = new_price
+            stock.updatedAt = datetime.utcnow()
+            updated_prices[stock.ticker] = {
+                'ticker': stock.ticker,
+                'stockName': stock.stockName,
+                'price': float(new_price)
+            }
+    db.session.commit()
+    return updated_prices
 
 
 # User or Admin authentication check
@@ -463,6 +491,53 @@ def market():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+# API endpoint to update stock prices (for front-end)
+@app.route("/api/update-prices", methods=["GET", "POST"])
+@login_required
+def update_prices_api():
+    """API endpoint that updates all stock prices within a threshold and returns updated prices."""
+    try:
+        # Get threshold from request (default 5%)
+        threshold = float(request.args.get('threshold', 5.0))
+        
+        # Update all prices
+        updated_prices = update_all_stock_prices_with_threshold(threshold)
+        
+        # Return as JSON
+        return jsonify({
+            'success': True,
+            'prices': updated_prices
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# API endpoint to get current stock prices (for front-end)
+@app.route("/api/stock-prices", methods=["GET"])
+@login_required
+def get_stock_prices():
+    """API endpoint that returns current stock prices."""
+    try:
+        stocks = StockInventory.query.all()
+        prices = {}
+        for stock in stocks:
+            prices[stock.ticker] = {
+                'ticker': stock.ticker,
+                'stockName': stock.stockName,
+                'price': float(stock.currentMarketPrice) if stock.currentMarketPrice else 0
+            }
+        return jsonify({
+            'success': True,
+            'prices': prices
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 @app.route("/add_exception")
 @admin_required
