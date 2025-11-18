@@ -80,6 +80,7 @@
                         <th>Stock Name</th>
                         <th>Quantity</th>
                         <th>Type of Transaction</th>
+                        <th>Price</th>
                         <th>Date</th>
                     </tr>
                 </thead>
@@ -89,6 +90,7 @@
                         <td>{{ order.ticker }}</td>
                         <td>{{ order.orderQuantity }}</td>
                         <td>{{ order.orderType }}</td>
+                        <td>{{ order.totalOrderAmount}}</td>
                         <td>{{ order.createdAt.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                     </tr>
                     {% else %}
