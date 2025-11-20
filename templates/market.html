@@ -24,6 +24,10 @@
         .price-change-negative {
             color: #dc3545;
         }
+
+        .row {
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -37,25 +41,25 @@
     </div>
     {% endif %}
     {% endwith %}
-    
+
     <nav class="navbar navbar-expand-lg">
-  <div class="container-fluid">
-    <div class="collapse navbar-collapse justify-content-end">
-      <ul class="navbar-nav">
-        {% if current_user.is_authenticated %}
-          <li class="nav-item d-flex align-items-center me-2">
-            <span class="navbar-text">Welcome, {{ current_user.username }}!</span>
-          </li>
-          <li class="nav-item">
-            <a class="btn btn-warning" href="{{ url_for('logout') }}">Logout</a>
-          </li>
-        {% else %}
-          <h1>You are not logged in.</h1>
-        {% endif %}
-      </ul>
-    </div>
-  </div>
-</nav>
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item d-flex align-items-center me-2">
+                        <span class="navbar-text">Welcome, {{ current_user.username }}!</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-warning" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                    {% else %}
+                    <h1>You are not logged in.</h1>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
     <div class="container-fluid p-4">
         <!-- Content will go here -->
     </div>
@@ -64,138 +68,143 @@
     <!-- Chart.js (optional, for charts) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </body>
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="p-2 rounded overflow-hidden">
-            <marquee class="stock-ticker">
-                <span class="text-secondary">S&P 500: <span class="price-change-positive">5200.12 (+0.5%)</span></span>
-                <span class="text-secondary">NASDAQ: <span class="price-change-positive">16500.87 (+1.2%)</span></span>
-                <span class="text-secondary">DOW: <span class="price-change-negative">39000.45 (-0.3%)</span></span>
-                <span class="text-secondary">TSLA: <span class="price-change-positive">255.67 (+2.1%)</span></span>
-            </marquee>
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12 col-lg-10 mx-auto">
+            <div class="p-2 rounded overflow-hidden">
+                <marquee class="stock-ticker">
+                    <span class="text-secondary">S&P 500: <span class="price-change-positive">5200.12
+                            (+0.5%)</span></span>
+                    <span class="text-secondary">NASDAQ: <span class="price-change-positive">16500.87
+                            (+1.2%)</span></span>
+                    <span class="text-secondary">DOW: <span class="price-change-negative">39000.45 (-0.3%)</span></span>
+                    <span class="text-secondary">TSLA: <span class="price-change-positive">255.67 (+2.1%)</span></span>
+                </marquee>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <!-- Left Column: Search and Watchlist -->
+        <div class="col-12 col-md-10 col-lg-4 mb-4">
+            <!-- Portfolio Actions -->
+            <div class="card mb-4">
+                <div class="card-header text-center">Add to My Portfolio</div>
+                <div class="card-body text-center">
+                    <a href="{{ url_for('purchasingstocks') }}" class="btn btn-primary btn-lg mb-2 w-100">Buy Stocks</a>
+                    <a href="{{ url_for('sellingstocks') }}" class="btn btn-primary btn-lg w-100">Sell Stocks</a>
+                </div>
+            </div>
+
+            <!-- Watchlist -->
+            <div class="card mb-4">
+                <div class="card-header text-center">My Watchlist</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">NVIDIA Corp (NVDA)</h6><small>NASDAQ</small>
+                        </div>
+                        <div><span class="price-change-positive">+0.66 (0.35%)</span></div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">Advanced Micro Devices Inc (AMD)</h6><small>NASDAQ</small>
+                        </div>
+                        <div><span class="price-change-positive">+2.22 (1.37%)</span></div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">Intel Corp (INTC)</h6><small>NASDAQ</small>
+                        </div>
+                        <div><span class="price-change-positive">+2.39 (7.12%)</span></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Column: Holdings and Market Overview -->
+        <div class="col-12 col-md-10 col-lg-8 mb-4">
+            <!-- Holdings Table -->
+            <div class="card mb-4">
+                <div class="card-header text-center">Holdings</div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Ticker</th>
+                                <th>Current Price</th>
+                                <th>Shares Available</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stock in stocks %}
+                            <tr data-ticker="{{ stock.ticker }}">
+                                <th scope="row">{{ stock.stockName }}</th>
+                                <td>{{ stock.ticker }}</td>
+                                <td class="stock-price" data-ticker="{{ stock.ticker }}">${{
+                                    "{:.2f}".format(stock.currentMarketPrice|float) if stock.currentMarketPrice else
+                                    "0.00" }}</td>
+                                <td>{{ stock.quantity }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">No stocks available.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Market Performance -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header text-center">Market Indices</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>DOW 30</span> <span class="price-change-positive">46,441.10 (0.093%)</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>S&P 500</span> <span class="price-change-positive">6,711.20 (0.34%)</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>DAX 40</span> <span class="price-change-positive">24,433.71 (+1.33%)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header text-center">Market Movers</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>TSLA</span> <span class="price-change-positive">255.67 (+2.1%)</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>GOOG</span> <span class="price-change-positive">135.90 (+1.8%)</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>AMZN</span> <span class="price-change-negative">180.32 (-1.1%)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts (Placeholder using Chart.js) -->
+            <div class="card mb-4 pb-2">
+                <div class="card-header text-center">DOW 30 Performance</div>
+                <div class="card-body">
+                    <canvas id="dow30Chart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <!-- Left Column: Search and Watchlist -->
-    <div class="col-md-4">
-        <!-- Search bar -->
-        <div class="card mb-4">
-            <div class="card-header">Add to My Portfolio</div>
-            <div class="card-body">
-                <a href="{{ url_for('purchasingstocks') }}" class="btn btn-primary btn-lg">Buy Stocks</a>
-                <a href="{{ url_for('sellingstocks') }}" class="btn btn-primary btn-lg">Sell Stocks</a>
-            </div>
-        </div>
 
-        <!-- Watchlist -->
-        <div class="card mb-4">
-            <div class="card-header">My Watchlist</div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-0">NVIDIA Corp (NVDA)</h6><small>NASDAQ</small>
-                    </div>
-                    <div><span class="price-change-positive">+0.66 (0.35%)</span></div>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-0">Advanced Micro Devices Inc (AMD)</h6><small>NASDAQ</small>
-                    </div>
-                    <div><span class="price-change-positive">+2.22 (1.37%)</span></div>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-0">Intel Corp (INTC)</h6><small>NASDAQ</small>
-                    </div>
-                    <div><span class="price-change-positive">+2.39 (7.12%)</span></div>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-     <div class="container mt-5">
-        <div class="row">
-            <div class="col-lg-8 mb-4 d-flex">
-                <div class="card w-100 h-100">
-                    <div class="card-header">Holdings</div>
-                    <div class="card-body">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Company</th>
-                                    <th>Ticker</th>
-                                    <th>Current Price</th>
-                                    <th>Shares Available</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for stock in stocks %}
-                                <tr data-ticker="{{ stock.ticker }}">
-                                    <th scope="row">{{ stock.stockName }}</th>
-                                    <td>{{ stock.ticker }}</td>
-                                    <td class="stock-price" data-ticker="{{ stock.ticker }}">${{ "{:.2f}".format(stock.currentMarketPrice|float) if stock.currentMarketPrice else "0.00" }}</td>
-                                    <td>{{ stock.quantity }}</td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="4" class="text-center">No stocks available.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-    <!-- Right Column: Market Overview -->
-    <div class="col-md-8">
-        <!-- Market Performance -->
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-header">Market Indices</div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>DOW 30</span> <span class="price-change-positive">46,441.10 (0.093%)</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>S&P 500</span> <span class="price-change-positive">6,711.20 (0.34%)</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>DAX 40</span> <span class="price-change-positive">24,433.71 (+1.33%)</span>
-                        </li>
-
-                    </ul>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-header">Market Movers</div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>TSLA</span> <span class="price-change-positive">255.67 (+2.1%)</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>GOOG</span> <span class="price-change-positive">135.90 (+1.8%)</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>AMZN</span> <span class="price-change-negative">180.32 (-1.1%)</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts (Placeholder using Chart.js) -->
-        <div class="card mb-4 pb-2">
-            <div class="card-header">DOW 30 Performance</div>
-            <div class="card-body">
-                <canvas id="dow30Chart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
 <script>
     // Hard coded data for DOW 30 chart
     const dow30Data = {
@@ -238,10 +247,10 @@
                         if (priceElement) {
                             const newPrice = data.prices[ticker].price;
                             const oldPrice = parseFloat(priceElement.textContent.replace('$', ''));
-                            
+
                             // Update the price
                             priceElement.textContent = '$' + newPrice.toFixed(2);
-                            
+
                             // Add a simple animation to show it updated
                             priceElement.style.transition = 'background-color 0.3s';
                             priceElement.style.backgroundColor = '#ffffcc';
