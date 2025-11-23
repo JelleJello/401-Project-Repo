@@ -137,16 +137,6 @@ with app.app_context():
         db.session.commit()
 
 # Random Price Generator
-# def generate_random_price(interval_seconds=30):
-#     """Generates a random price within a specified range."""
-#     # min_price = 5.00
-#     # max_price = 300.00
-#     while True:
-#         StockInventory.currentMarketPrice = float(math.rand(0, 200))
-#         time.sleep(interval_seconds)
-#         return StockInventory.currentMarketPrice
-
-# Random Price Generator
 def generate_random_price(min_price=1.00, max_price=1000.00):
     """Generates a random price and returns it as a Decimal object."""
     random_float = random.uniform(min_price, max_price)
