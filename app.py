@@ -406,6 +406,8 @@ DEFAULT_HOURS = {
     'Wednesday': {'start': 9 * 60, 'end': 17 * 60, 'closed': False},
     'Thursday':  {'start': 9 * 60, 'end': 17 * 60, 'closed': False},
     'Friday':    {'start': 9 * 60, 'end': 17 * 60, 'closed': False},
+    'Saturday':    {'start': 9 * 60, 'end': 17 * 60, 'closed': True},
+    'Sunday':    {'start': 9 * 60, 'end': 17 * 60, 'closed': True},
 }
 
 @app.route('/manage_markethours', methods=['GET', 'POST'])
@@ -413,15 +415,15 @@ def manage_markethours():
     if request.method == 'POST':
         # Loop through each day to update hours
         for day in DEFAULT_HOURS.keys():
-            closed = request.form.get(f'{day}_closed')
+            closed = request.form.get(f'{day}Switch')
             if closed:
                 # Day is closed, remove or set hours to None
                 working_day = WorkingDay.query.filter_by(dayOfWeek=day).first()
                 if working_day:
                     db.session.delete(working_day)
             else:
-                start_time_str = request.form.get(f'{day}_start')
-                end_time_str = request.form.get(f'{day}_end')
+                start_time_str = request.form.get(f'{day}Start')
+                end_time_str = request.form.get(f'{day}End')
                 if start_time_str and end_time_str:
                     # Parse HH:MM to minutes
                     start_hours, start_minutes = map(int, start_time_str.split(':'))
@@ -439,17 +441,17 @@ def manage_markethours():
         return redirect(url_for('manage_markethours'))
 
     # GET method: fetch current hours or use defaults
-    existing_hours = {wd.dayOfWeek: {'start': None, 'end': None} for wd in WorkingDay.query.all()}
+    existing_hours = {wd.dayOfWeek: {'Start': None, 'End': None} for wd in WorkingDay.query.all()}
     for wd in existing_hours:
         day_obj = WorkingDay.query.filter_by(dayOfWeek=wd).first()
         if day_obj:
-            wd['start'] = f"{day_obj.startTime // 60:02d}:{day_obj.startTime % 60:02d}"
-            wd['end'] = f"{day_obj.endTime // 60:02d}:{day_obj.endTime % 60:02d}"
+            wd['Start'] = f"{day_obj.startTime // 60:02d}:{day_obj.startTime % 60:02d}"
+            wd['End'] = f"{day_obj.endTime // 60:02d}:{day_obj.endTime % 60:02d}"
         else:
             # Use default
             default = DEFAULT_HOURS[wd]
-            wd['start'] = f"{default['start'] // 60:02d}:{default['start'] % 60:02d}"
-            wd['end'] = f"{default['end'] // 60:02d}:{default['end'] % 60:02d}"
+            wd['Start'] = f"{default['Start'] // 60:02d}:{default['Start'] % 60:02d}"
+            wd['End'] = f"{default['End'] // 60:02d}:{default['End'] % 60:02d}"
 
     return render_template('manage_markethours.html', hours=existing_hours)
 
@@ -473,7 +475,7 @@ def market():
 
     if not is_open:
         flash(f"Market is currently closed", "warning")
-        return render_template("portfolio")
+        return render_template("portfolio.html")
 
     stocks = StockInventory.query.all()
     return render_template("market.html", stocks=stocks)
