@@ -724,9 +724,9 @@ def edit_stock(id):
         stockname = request.form['stockName']
         ticker = request.form['ticker']
         quantity = request.form['quantity']
-        marketprice = request.form['price']
+        # marketprice = request.form['price']
 
-        if not stockname or not ticker or not quantity or not marketprice:
+        if not stockname or not ticker or not quantity:
             flash('Make sure all parameters are met', 'error')
             return redirect(url_for('edit_stock', id=id))
         
@@ -734,7 +734,7 @@ def edit_stock(id):
             stock.stockName = stockname
             stock.ticker = ticker
             stock.quantity = quantity
-            stock.currentMarketPrice = marketprice
+            # stock.currentMarketPrice = marketprice
             db.session.commit()
             flash('Stock updated successfully!', 'success')
             return redirect(url_for('admin_dashboard'))
