@@ -438,20 +438,20 @@ def manage_markethours():
                     working_day.startTime = start_total
                     working_day.endTime = end_total
         db.session.commit()
-        return redirect(url_for('manage_markethours'))
+        return redirect(url_for('admin_dashboard'))
 
     # GET method: fetch current hours or use defaults
-    existing_hours = {wd.dayOfWeek: {'Start': None, 'End': None} for wd in WorkingDay.query.all()}
-    for wd in existing_hours:
-        day_obj = WorkingDay.query.filter_by(dayOfWeek=wd).first()
+    existing_hours = {working_day.dayOfWeek: {'Start': None, 'End': None} for working_day in WorkingDay.query.all()}
+    for working_day in existing_hours:
+        day_obj = WorkingDay.query.filter_by(dayOfWeek=working_day).first()
         if day_obj:
-            wd['Start'] = f"{day_obj.startTime // 60:02d}:{day_obj.startTime % 60:02d}"
-            wd['End'] = f"{day_obj.endTime // 60:02d}:{day_obj.endTime % 60:02d}"
+            working_day['Start'] = f"{day_obj.startTime // 60:02d}:{day_obj.startTime % 60:02d}"
+            working_day['End'] = f"{day_obj.endTime // 60:02d}:{day_obj.endTime % 60:02d}"
         else:
             # Use default
-            default = DEFAULT_HOURS[wd]
-            wd['Start'] = f"{default['Start'] // 60:02d}:{default['Start'] % 60:02d}"
-            wd['End'] = f"{default['End'] // 60:02d}:{default['End'] % 60:02d}"
+            default = DEFAULT_HOURS[working_day]
+            working_day['Start'] = f"{default['Start'] // 60:02d}:{default['Start'] % 60:02d}"
+            working_day['End'] = f"{default['End'] // 60:02d}:{default['End'] % 60:02d}"
 
     return render_template('manage_markethours.html', hours=existing_hours)
 
